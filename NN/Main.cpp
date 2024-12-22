@@ -1,7 +1,6 @@
 #include <iostream>
-#include "NeuralNetwork.h"
-
 #include <chrono>
+#include "NeuralNetwork.h"
 
 int main() {
 	NeuralNetwork nn;
@@ -10,8 +9,8 @@ int main() {
 	vector<float> input(784, 0.5);
 
 	auto start = std::chrono::high_resolution_clock::now();
-	for (size_t i = 0; i < 2000; ++i)
-		nn.NeuralMultiplication(input);
+	/*for (size_t i = 0; i < 2000; ++i)
+		nn.NeuralMultiplication(input);*/
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

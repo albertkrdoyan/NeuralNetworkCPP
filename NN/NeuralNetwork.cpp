@@ -3,7 +3,7 @@
 float SigmoidFunction(float);
 void SoftMaxFunction(vector<float>&, size_t);
 
-int NeuralNetwork::Init(vector<int> npl, ActivationFunction act, ActivationFunction llact) {
+int NeuralNetwork::Init(vector<int> npl, ActivationFunction act, ActivationFunction llact, int tc) {
 	neurons_per_layer = npl;
 	layers_count = neurons_per_layer.size();
 
@@ -30,6 +30,7 @@ int NeuralNetwork::Init(vector<int> npl, ActivationFunction act, ActivationFunct
 
 	this->act = act;
 	this->llact = llact;
+	this->threads_count = tc;
 
 	return 0;
 }
@@ -64,16 +65,15 @@ void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
 	for (i = 0; i < fln.size(); ++i)
 		layers[0][i] = fln[i];
 
+	vector<thread> threads(threads_count);
+
 	for (i = 1; i < layers_count; ++i) {
-		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
-			layers[i][j] = 0.f;
-
-			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k) {
-				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
-			}
-
-			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
+		for (int t_i = 0; t_i < threads_count; ++i) {
+			//threads[i] = thread(NeuralNetwork::NMPThread, i, st, end);
 		}
+
+		for (auto& t : threads)
+			t.join();
 
 		Activation(i, (i != layers_count - 1 ? act : llact));
 	}
@@ -123,5 +123,17 @@ void SoftMaxFunction(vector<float> &layer, size_t len) {
 	constant = m + log(sum);
 	for (i = 0; i < len; ++i) {
 		layer[i] = exp(layer[i] - constant);
+	}
+}
+
+void NeuralNetwork::NMPThread(int i, int st, int end) {
+	for (size_t j = st; j < end; ++j) {
+		layers[i][j] = 0.f;
+
+		for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k) {
+			layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
+		}
+
+		layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
 	}
 }

@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\User\\source\\repos\\NN\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NN\\NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NN\\NN\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NN\\NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NN\\NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -27,12 +27,26 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Main.cpp",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NN\\NN\\Main.cpp",
+              "RelativeDocumentMoniker": "NN\\Main.cpp",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\NN\\NN\\Main.cpp*",
+              "RelativeToolTip": "NN\\Main.cpp*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-12-22T13:37:11.544Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "NeuralNetwork.cpp",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NN\\NN\\NeuralNetwork.cpp",
               "RelativeDocumentMoniker": "NN\\NeuralNetwork.cpp",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\NN\\NN\\NeuralNetwork.cpp*",
-              "RelativeToolTip": "NN\\NeuralNetwork.cpp*",
-              "ViewState": "AgIAAD4AAAAAAAAAAAAAAEMAAAAaAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\NN\\NN\\NeuralNetwork.cpp",
+              "RelativeToolTip": "NN\\NeuralNetwork.cpp",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAAAAMAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-12-22T14:24:53.291Z",
               "EditorCaption": ""
@@ -45,22 +59,9 @@
               "RelativeDocumentMoniker": "NN\\NeuralNetwork.h",
               "ToolTip": "C:\\Users\\User\\source\\repos\\NN\\NN\\NeuralNetwork.h",
               "RelativeToolTip": "NN\\NeuralNetwork.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAABwAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-12-22T14:01:33.433Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Main.cpp",
-              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NN\\NN\\Main.cpp",
-              "RelativeDocumentMoniker": "NN\\Main.cpp",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\NN\\NN\\Main.cpp",
-              "RelativeToolTip": "NN\\Main.cpp",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAAcAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-12-22T13:37:11.544Z",
               "EditorCaption": ""
             }
           ]
