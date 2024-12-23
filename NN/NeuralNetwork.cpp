@@ -6,7 +6,7 @@ void SoftMaxFunction(vector<float>&, size_t);
 void NMPThread(size_t, size_t, size_t, vector<vector<float>>&, vector<size_t>&, vector<vector<vector<float>>>&);
 
 NeuralNetwork::NeuralNetwork() {
-	this->threads_count = 1;
+	this->threads_count = 8;
 	this->llact = act = ReLU;
 	this->layers_count = 0;
 }
