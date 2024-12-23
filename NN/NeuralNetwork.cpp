@@ -1,9 +1,17 @@
 #include "NeuralNetwork.h"
+#include <future>
 
 float SigmoidFunction(float);
 void SoftMaxFunction(vector<float>&, size_t);
+void NMPThread(size_t, size_t, size_t, vector<vector<float>>&, vector<size_t>&, vector<vector<vector<float>>>&);
 
-int NeuralNetwork::Init(vector<int> npl, ActivationFunction act, ActivationFunction llact, int tc) {
+NeuralNetwork::NeuralNetwork() {
+	this->threads_count = 1;
+	this->llact = act = ReLU;
+	this->layers_count = 0;
+}
+
+int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact) {
 	neurons_per_layer = npl;
 	layers_count = neurons_per_layer.size();
 
@@ -30,7 +38,6 @@ int NeuralNetwork::Init(vector<int> npl, ActivationFunction act, ActivationFunct
 
 	this->act = act;
 	this->llact = llact;
-	this->threads_count = tc;
 
 	return 0;
 }
@@ -63,18 +70,27 @@ void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
 	size_t i = 0, j = 0, k = 0;
 
 	for (i = 0; i < fln.size(); ++i)
-		layers[0][i] = fln[i];
-
-	vector<thread> threads(threads_count);
+		layers[0][i] = fln[i];	
 
 	for (i = 1; i < layers_count; ++i) {
-		for (int t_i = 0; t_i < threads_count; ++i) {
-			//threads[i] = thread(NeuralNetwork::NMPThread, i, st, end);
+		size_t c_t_c = (neurons_per_layer[i] < 64 ? 1 : threads_count);
+		vector<thread> threads(c_t_c);
+
+		for (size_t t_i = 0; t_i < c_t_c; ++t_i) {
+			threads[t_i] = thread(
+				NMPThread, 
+				i, 
+				t_i * (neurons_per_layer[i] / c_t_c),
+				(t_i != c_t_c - 1 ? (t_i + 1) * (neurons_per_layer[i] / c_t_c) : neurons_per_layer[i]),
+				std::ref(layers),
+				std::ref(neurons_per_layer),
+				std::ref(weights)
+			);
 		}
 
 		for (auto& t : threads)
 			t.join();
-
+		
 		Activation(i, (i != layers_count - 1 ? act : llact));
 	}
 }
@@ -126,7 +142,7 @@ void SoftMaxFunction(vector<float> &layer, size_t len) {
 	}
 }
 
-void NeuralNetwork::NMPThread(int i, int st, int end) {
+void NMPThread(size_t i, size_t st, size_t end, vector<vector<float>>& layers, vector<size_t>& neurons_per_layer, vector<vector<vector<float>>>& weights) {
 	for (size_t j = st; j < end; ++j) {
 		layers[i][j] = 0.f;
 
