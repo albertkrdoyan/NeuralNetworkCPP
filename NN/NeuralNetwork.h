@@ -8,6 +8,7 @@ using std::vector;
 using std::thread;
 
 enum ActivationFunction {ReLU, Sigmoid, SoftMax};
+enum LossFunction {CrossEntropy, SquaredError};
 
 class NeuralNetwork
 {
@@ -17,13 +18,16 @@ private:
 	vector<vector<float>> layers;
 	vector<vector<vector<float>>> weights;
 	ActivationFunction act, llact;
+	LossFunction loss;
 
 public:
 	NeuralNetwork();
-	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact);
+	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss);
 	void PrintLayers();
 	void PrintWeights();
 	void NeuralMultiplication(vector<float>);
+	void NeuralMultiplicationT(vector<float> fln);
 	void Activation(size_t layer, ActivationFunction);
+	void BackProp(vector<float>);
 };
 

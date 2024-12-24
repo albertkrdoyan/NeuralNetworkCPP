@@ -1,2 +1,24 @@
-﻿  NeuralNetwork.cpp
+﻿  Main.cpp
+  NeuralNetwork.cpp
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(157,15): warning C4244: *=: преобразование "_Ty" в "int", возможна потеря данных
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(157,15): warning C4244:         with
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(157,15): warning C4244:         [
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(157,15): warning C4244:             _Ty=float
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(157,15): warning C4244:         ]
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(160,31): warning C4244: *=: преобразование "_Ty" в "int", возможна потеря данных
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(160,31): warning C4244:         with
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(160,31): warning C4244:         [
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(160,31): warning C4244:             _Ty=float
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(160,31): warning C4244:         ]
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(162,30): warning C4244: *=: преобразование "_Ty" в "int", возможна потеря данных
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(162,30): warning C4244:         with
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(162,30): warning C4244:         [
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(162,30): warning C4244:             _Ty=float
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(162,30): warning C4244:         ]
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(164,23): warning C4244: =: преобразование "int" в "_Ty", возможна потеря данных
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(164,23): warning C4244:         with
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(164,23): warning C4244:         [
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(164,23): warning C4244:             _Ty=float
+C:\Users\User\source\repos\NN\NN\NeuralNetwork.cpp(164,23): warning C4244:         ]
+  Создание кода...
   NN.vcxproj -> C:\Users\User\source\repos\NN\x64\Debug\NN.exe

@@ -1,17 +1,16 @@
 #include "NeuralNetwork.h"
-#include <future>
 
 float SigmoidFunction(float);
 void SoftMaxFunction(vector<float>&, size_t);
 void NMPThread(size_t, size_t, size_t, vector<vector<float>>&, vector<size_t>&, vector<vector<vector<float>>>&);
 
 NeuralNetwork::NeuralNetwork() {
-	this->threads_count = 8;
+	this->threads_count = 1;
 	this->llact = act = ReLU;
 	this->layers_count = 0;
 }
 
-int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact) {
+int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss) {
 	neurons_per_layer = npl;
 	layers_count = neurons_per_layer.size();
 
@@ -38,6 +37,7 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 
 	this->act = act;
 	this->llact = llact;
+	this->loss = loss;
 
 	return 0;
 }
@@ -64,7 +64,7 @@ void NeuralNetwork::PrintWeights() {
 	}
 }
 
-void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
+void NeuralNetwork::NeuralMultiplicationT(vector<float> fln) {
 	if (fln.size() != layers[0].size()) return;
 
 	size_t i = 0, j = 0, k = 0;
@@ -95,6 +95,29 @@ void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
 	}
 }
 
+void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
+	if (fln.size() != layers[0].size()) return;
+
+	size_t i = 0, j = 0, k = 0;
+
+	for (i = 0; i < fln.size(); ++i)
+		layers[0][i] = fln[i];
+
+	for (i = 1; i < layers_count; ++i) {
+		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
+			layers[i][j] = 0.f;
+
+			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k) {
+				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
+			}
+
+			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
+		}
+
+		Activation(i, (i != layers_count - 1 ? act : llact));
+	}
+}
+
 void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
 	size_t i = 0;
 	switch (act)
@@ -113,6 +136,36 @@ void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
 	default:
 		break;
 	}
+}
+
+void NeuralNetwork::BackProp(vector<float> y)
+{
+	if (y.size() != layers.back().size()) return;
+	
+	int temp = 1;
+	if (loss == LossFunction::CrossEntropy && llact == ActivationFunction::SoftMax) {
+		for (int i = 0; i < neurons_per_layer.back(); ++i) {
+			// dE / dz
+			layers.back()[i] -= y[i];
+		}
+	}
+	else {
+		for (int i = 0; i < neurons_per_layer.back(); ++i) {
+			// dE / dz
+			temp = 1;
+			if (loss == LossFunction::SquaredError)
+				temp *= 2 * (layers.back()[i] - y[i]);
+
+			if (llact == ActivationFunction::ReLU)
+				temp *= (layers.back()[i] > 0 ? layers.back()[i] : 0);
+			else if (llact == ActivationFunction::Sigmoid)
+				temp *= layers.back()[i] * (1 - layers.back()[i]);
+
+			layers.back()[i] = temp;
+		}
+	}
+
+	//
 }
 
 float SigmoidFunction(float x) {
