@@ -23,7 +23,7 @@ private:
 public:
 	NeuralNetwork();
 	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss);
-	void PrintLayers();
+	void PrintLayers(size_t);
 	void PrintWeights();
 	void NeuralMultiplication(vector<float>);
 	void NeuralMultiplicationT(vector<float> fln);

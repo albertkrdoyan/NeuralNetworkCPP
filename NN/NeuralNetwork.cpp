@@ -42,8 +42,9 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 	return 0;
 }
 
-void NeuralNetwork::PrintLayers() {
-	for (size_t i = 0; i < layers_count; ++i) {
+void NeuralNetwork::PrintLayers(size_t layer) {
+	if (layer != 0)
+	for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
 		printf("Layer [%zu]: ", i);
 		for (const auto& neuron : layers[i])
 			printf("%f ", neuron);
@@ -142,17 +143,17 @@ void NeuralNetwork::BackProp(vector<float> y)
 {
 	if (y.size() != layers.back().size()) return;
 	
-	int temp = 1;
+	float temp = 1.0f;
 	if (loss == LossFunction::CrossEntropy && llact == ActivationFunction::SoftMax) {
-		for (int i = 0; i < neurons_per_layer.back(); ++i) {
+		for (size_t i = 0; i < neurons_per_layer.back(); ++i) {
 			// dE / dz
 			layers.back()[i] -= y[i];
 		}
 	}
 	else {
-		for (int i = 0; i < neurons_per_layer.back(); ++i) {
+		for (size_t i = 0; i < neurons_per_layer.back(); ++i) {
 			// dE / dz
-			temp = 1;
+			temp = 1.0f;
 			if (loss == LossFunction::SquaredError)
 				temp *= 2 * (layers.back()[i] - y[i]);
 
@@ -166,6 +167,7 @@ void NeuralNetwork::BackProp(vector<float> y)
 	}
 
 	//
+	//for ()
 }
 
 float SigmoidFunction(float x) {

@@ -16,15 +16,16 @@ int main() {
 	auto start = std::chrono::high_resolution_clock::now();
 
 	nn.NeuralMultiplication(input);
+	nn.PrintLayers(2);
 	nn.BackProp(y);
+	nn.PrintLayers(2);
 
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	std::cout << "Function execution time: " << duration.count() << " miliseconds" << std::endl;
 
-	/*nn.PrintLayers();
-	nn.PrintWeights();*/
+	//nn.PrintWeights();
 
 	return 0;
 }
