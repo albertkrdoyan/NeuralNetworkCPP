@@ -15,14 +15,20 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 	layers_count = neurons_per_layer.size();
 
 	layers = vector<vector<float>>(layers_count);
+	glayers = vector<vector<float>>(layers_count);
 
-	for (size_t i = 0; i < layers_count; ++i)
+	for (size_t i = 0; i < layers_count; ++i) {
 		layers[i] = vector<float>(neurons_per_layer[i], 0);
+		glayers[i] = vector<float>(neurons_per_layer[i], 0);
+	}
 
 	weights = vector<vector<vector<float>>>(layers_count - 1);
+	gradients = vector<vector<vector<float>>>(layers_count - 1);
 
-	for (size_t i = 0; i < layers_count - 1; ++i)
+	for (size_t i = 0; i < layers_count - 1; ++i) {
 		weights[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
+		gradients[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
+	}
 
 	std::random_device rd; // Seed for the random number engine
 	std::mt19937 gen(rd()); // Mersenne Twister random number engine
@@ -43,7 +49,6 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 }
 
 void NeuralNetwork::PrintLayers(size_t layer) {
-	if (layer != 0)
 	for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
 		printf("Layer [%zu]: ", i);
 		for (const auto& neuron : layers[i])
@@ -62,6 +67,30 @@ void NeuralNetwork::PrintWeights() {
 			printf(" ]\n");
 		}
 		printf("]\n");
+	}
+}
+
+void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
+{
+	if (printwhat == "ALL" || printwhat == "GLAYER") {
+		for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
+			printf("GLayer [%zu]: ", i);
+			for (const auto& neuron : glayers[i])
+				printf("%f ", neuron);
+			printf("\n");
+		}
+	}
+	if (printwhat == "ALL" || printwhat == "GRAD") {
+		for (size_t i = 0; i < layers_count - 1; ++i) {
+			printf("Gradients [%zu]\n[\n", i);
+			for (const auto& line : gradients[i]) {
+				printf("\t[");
+				for (const auto& weight : line)
+					printf(" %f", weight);
+				printf(" ]\n");
+			}
+			printf("]\n");
+		}
 	}
 }
 
@@ -139,35 +168,41 @@ void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
 	}
 }
 
-void NeuralNetwork::BackProp(vector<float> y)
+void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 {
 	if (y.size() != layers.back().size()) return;
 	
-	float temp = 1.0f;
 	if (loss == LossFunction::CrossEntropy && llact == ActivationFunction::SoftMax) {
 		for (size_t i = 0; i < neurons_per_layer.back(); ++i) {
 			// dE / dz
-			layers.back()[i] -= y[i];
+			glayers.back()[i] = layers.back()[i] - y[i];
 		}
 	}
 	else {
 		for (size_t i = 0; i < neurons_per_layer.back(); ++i) {
 			// dE / dz
-			temp = 1.0f;
+			glayers.back()[i] = 1.0f;
 			if (loss == LossFunction::SquaredError)
-				temp *= 2 * (layers.back()[i] - y[i]);
+				glayers.back()[i] *= 2 * (layers.back()[i] - y[i]);
 
 			if (llact == ActivationFunction::ReLU)
-				temp *= (layers.back()[i] > 0 ? layers.back()[i] : 0);
+				glayers.back()[i] *= (layers.back()[i] > 0 ? layers.back()[i] : 0);
 			else if (llact == ActivationFunction::Sigmoid)
-				temp *= layers.back()[i] * (1 - layers.back()[i]);
-
-			layers.back()[i] = temp;
+				glayers.back()[i] *= layers.back()[i] * (1 - layers.back()[i]);
 		}
 	}
 
-	//
-	//for ()
+	/*size_t h = 0, w = 0;
+	for (size_t l = layers_count - 2; l >= 0; --l) {
+		for (h = 0; h < neurons_per_layer[l + 1]; ++h) {
+			for (w = 0; w < neurons_per_layer[l]; ++w) {
+				gradients[l][h][w] += layers[h][w] * weights[l][h][w];
+			}
+			gradients[l - 1][h][w] += layers[h][w];
+
+
+		}
+	}*/
 }
 
 float SigmoidFunction(float x) {
