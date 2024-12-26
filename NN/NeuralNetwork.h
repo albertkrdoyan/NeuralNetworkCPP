@@ -3,6 +3,7 @@
 #include <random>
 #include <math.h>
 #include <thread>
+#include <omp.h>
 
 using std::vector;
 using std::thread;

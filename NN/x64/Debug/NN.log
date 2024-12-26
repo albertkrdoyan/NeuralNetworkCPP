@@ -1,2 +1,3 @@
-﻿  Main.cpp
+﻿  NeuralNetwork.cpp
+C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(196,13): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
   NN.vcxproj -> C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe

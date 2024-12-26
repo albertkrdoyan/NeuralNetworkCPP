@@ -134,6 +134,7 @@ void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
 		layers[0][i] = fln[i];
 
 	for (i = 1; i < layers_count; ++i) {
+		//#pragma omp parallel for
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
 			layers[i][j] = 0.f;
 
@@ -192,16 +193,18 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 		}
 	}
 
-	/*size_t h = 0, w = 0;
-	for (size_t l = layers_count - 2; l >= 0; --l) {
-		for (h = 0; h < neurons_per_layer[l + 1]; ++h) {
-			for (w = 0; w < neurons_per_layer[l]; ++w) {
-				gradients[l][h][w] += layers[h][w] * weights[l][h][w];
+	/*for (int n = layers_count - 2; n >= 0; --n) {
+		size_t j = 0, i = 0;
+		vector<float> deda(weights[n][j].size() - 1, 0);
+		for (j = 0; j < weights[n].size(); ++j) {
+			for (i = 0; i < weights[n][j].size() - 1; ++i) {
+				gradients[n][j][i] += layers[n + 1][j] * layers[n][i];
+				deda[i] += weights[n][j][i];
 			}
-			gradients[l - 1][h][w] += layers[h][w];
-
-
+			gradients[n][j][i] = layers[n + 1][j];
 		}
+		for (i = 0; i < weights[n][j].size() - 1; ++i)
+			deda[i] *= 
 	}*/
 }
 
