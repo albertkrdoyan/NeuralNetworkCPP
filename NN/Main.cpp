@@ -8,9 +8,9 @@ int main() {
 
 	NeuralNetwork nn;
 
-	nn.Init({4, 4, 4}, ActivationFunction::ReLU, ActivationFunction::SoftMax, LossFunction::CrossEntropy);
-	vector<float> input(4, 0.5);
-	vector<float> y = {0,0,1,0};
+	nn.Init({3, 5, 3}, ActivationFunction::ReLU, ActivationFunction::SoftMax, LossFunction::CrossEntropy);
+	vector<float> input(3, 0.5);
+	vector<float> y = {0,1,0};
 
 	std::cout << "Start\n";
 	auto start = std::chrono::high_resolution_clock::now();
@@ -27,8 +27,7 @@ int main() {
 	nn.PrintLayers(0);
 	//nn.PrintWeights();
 
-	nn.PrintGradients("GLAYER", 0);
-
+	nn.PrintGradients("ALL", 0);
 
 	return 0;
 }

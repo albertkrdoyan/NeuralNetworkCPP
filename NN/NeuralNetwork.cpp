@@ -193,19 +193,21 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 		}
 	}
 
-	/*for (int n = layers_count - 2; n >= 0; --n) {
+	for (int n = layers_count - 2; n >= 0; --n) {
 		size_t j = 0, i = 0;
 		vector<float> deda(weights[n][j].size() - 1, 0);
+		
 		for (j = 0; j < weights[n].size(); ++j) {
 			for (i = 0; i < weights[n][j].size() - 1; ++i) {
-				gradients[n][j][i] += layers[n + 1][j] * layers[n][i];
+				gradients[n][j][i] += glayers[n + 1][j] * layers[n][i];
 				deda[i] += weights[n][j][i];
 			}
-			gradients[n][j][i] = layers[n + 1][j];
+			gradients[n][j][i] = glayers[n + 1][j];
 		}
-		for (i = 0; i < weights[n][j].size() - 1; ++i)
-			deda[i] *= 
-	}*/
+
+		for (i = 0; n != 0 && i < deda.size(); ++i)
+			glayers[n][i] = deda[i];
+	}
 }
 
 float SigmoidFunction(float x) {
