@@ -9,6 +9,8 @@ int main() {
 	NeuralNetwork nn;
 
 	nn.Init({3, 5, 3}, ActivationFunction::ReLU, ActivationFunction::SoftMax, LossFunction::CrossEntropy);
+	nn.LoadWeights("weights.txt");
+
 	vector<float> input(3, 0.5);
 	vector<float> y = {0,1,0};
 
@@ -22,10 +24,6 @@ int main() {
 
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	std::cout << "Function execution time: " << duration.count() << " miliseconds" << std::endl;
-
-
-	nn.PrintLayers(0);
-	//nn.PrintWeights();
 
 	nn.PrintGradients("ALL", 0);
 

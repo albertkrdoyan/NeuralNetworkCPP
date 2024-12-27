@@ -4,9 +4,12 @@
 #include <math.h>
 #include <thread>
 #include <omp.h>
+#include <fstream>
 
 using std::vector;
 using std::thread;
+using std::ifstream;
+using std::ofstream;
 
 enum ActivationFunction {ReLU, Sigmoid, SoftMax};
 enum LossFunction {CrossEntropy, SquaredError};
@@ -33,5 +36,7 @@ public:
 	void NeuralMultiplicationT(vector<float> fln);
 	void Activation(size_t layer, ActivationFunction);
 	void BackProp(vector<float> y, bool cfl = false);
+	void LoadWeights(const char*);
+	void SaveWeights(const char*);
 };
 

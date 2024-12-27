@@ -200,13 +200,112 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 		for (j = 0; j < weights[n].size(); ++j) {
 			for (i = 0; i < weights[n][j].size() - 1; ++i) {
 				gradients[n][j][i] += glayers[n + 1][j] * layers[n][i];
-				deda[i] += weights[n][j][i];
+				deda[i] += weights[n][j][i];		//
+				if (j == weights[n].size() - 1)		// de/da
+					deda[i] *= glayers[n + 1][j];	//
 			}
-			gradients[n][j][i] = glayers[n + 1][j];
+			gradients[n][j][i] = glayers[n + 1][j]; // de/db
 		}
 
-		for (i = 0; n != 0 && i < deda.size(); ++i)
-			glayers[n][i] = deda[i];
+		for (i = 0; n != 0 && i < deda.size(); ++i) {
+			switch (act)
+			{
+			case ReLU:
+				glayers[n][i] = (deda[i] > 0 ? deda[i] : 0);
+				break;
+			case Sigmoid:
+				glayers[n][i] = deda[i] * layers[n][i] * (1 - layers[n][i]);
+				break;
+			case SoftMax:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
+float to_float(const char* str) {
+	float res = .0f;
+	size_t i = 0;
+
+	for (; str[i] != '.' && str[i] != '\0'; ++i) {
+		res *= 10.0f;
+		res += str[i] - '0';
+	}
+	if (str[i] == '\0')
+		return res;
+	++i;
+
+	float under = .0f;
+	float dec = 1.0f;
+	for (; str[i] != '\0'; ++i) {
+		dec /= 10.0f;
+		under += dec * (str[i] - '0');
+	}
+
+	return res + under;
+}
+
+void NeuralNetwork::LoadWeights(const char* path)
+{
+	size_t n = 0, i = 0, j = 0;
+
+	ifstream WLoad;
+	WLoad.open(path);
+
+	if (WLoad.is_open()) {
+		char _char = '\0';
+		char buff[30];
+		size_t ind = 0;
+
+		while (true) {
+			_char = WLoad.get();
+
+			if (_char == ' ' || _char == -1 || _char == '\r' || _char == '\n') {
+				buff[ind] = '\0';
+				weights[n][i][j++] = to_float(buff);
+				ind = 0;
+				if (j == weights[n][i].size()) {
+					j = 0;
+					++i;
+				}
+				if (i == weights[n].size()) {
+					n++;
+					i = 0;
+				}
+				if (n == weights.size())
+					break;
+			}
+			else
+				buff[ind++] = _char;
+		}
+		WLoad.close();
+	}
+	else {
+		printf("Not Open\n");
+	}
+}
+
+void NeuralNetwork::SaveWeights(const char* path)
+{
+	ofstream RSave;
+	RSave.open(path);
+
+	if (RSave.is_open()) {
+		for (size_t n = 0; n < weights.size(); ++n) {
+			for (size_t i = 0; i < weights[n].size(); ++i) {
+				for (size_t j = 0; j < weights[n][i].size(); ++j) {
+					RSave << weights[n][i][j];
+					if (j != weights[n][i].size() - 1) RSave << " ";
+				}
+				RSave << "\n";
+			}
+		}
+		RSave.close();
+	}
+	else {
+		printf("Not Open\n");
 	}
 }
 
