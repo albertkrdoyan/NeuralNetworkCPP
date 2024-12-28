@@ -8,6 +8,7 @@ NeuralNetwork::NeuralNetwork() {
 	this->threads_count = 1;
 	this->llact = act = ReLU;
 	this->layers_count = 0;
+	this->loss = SquaredError;
 }
 
 int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss) {
@@ -207,25 +208,27 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 			gradients[n][j][i] = glayers[n + 1][j]; // de/db
 		}
 
-		for (i = 0; n != 0 && i < deda.size(); ++i) {
-			switch (act)
-			{
-			case ReLU:
+		
+		switch (act)
+		{
+		case ReLU:
+			for (i = 0; n != 0 && i < deda.size(); ++i)
 				glayers[n][i] = (deda[i] > 0 ? deda[i] : 0);
-				break;
-			case Sigmoid:
+			break;
+		case Sigmoid:
+			for (i = 0; n != 0 && i < deda.size(); ++i)
 				glayers[n][i] = deda[i] * layers[n][i] * (1 - layers[n][i]);
-				break;
-			case SoftMax:
-				break;
-			default:
-				break;
-			}
+			break;
+		case SoftMax:
+			break;
+		default:
+			break;
 		}
 	}
+	
 }
 
-float to_float(const char* str) {
+static float to_float(const char* str) {
 	float res = .0f;
 	size_t i = 0;
 
