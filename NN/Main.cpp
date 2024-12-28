@@ -25,6 +25,9 @@ int main() {
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	std::cout << "Function execution time: " << duration.count() << " miliseconds" << std::endl;
 
+	nn.PrintLayers(0);
+	nn.PrintWeights();
+
 	nn.PrintGradients("ALL", 0);
 
 	return 0;
