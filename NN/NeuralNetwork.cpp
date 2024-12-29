@@ -194,22 +194,26 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 		}
 	}
 
-	for (int n = layers_count - 2; n >= 0; --n) {
-		size_t j = 0, i = 0;
-		vector<float> deda(weights[n][j].size() - 1, 0);
-		
-		///
+	size_t j = 0, i = 0;
 
+	for (int n = layers_count - 2; n >= 0; --n) {
+		for (i = 0; i < weights[n].size(); ++i) {
+			gradients[n][i].back() += glayers[n + 1][i];
+			for (j = 0; j < weights[n][0].size() - 1; ++j) {
+				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j];
+				glayers[n][j] += glayers[n + 1][i] * weights[n][i][j];
+			}
+		}
 		
 		switch (act)
 		{
 		case ReLU:
-			for (i = 0; n != 0 && i < deda.size(); ++i)
-				glayers[n][i] = (deda[i] > 0 ? deda[i] : 0);
+			for (i = 0; n != 0 && i < glayers[n].size(); ++i)
+				glayers[n][i] *= (layers[n][i] > 0 ? layers[n][i] : 0);
 			break;
 		case Sigmoid:
-			for (i = 0; n != 0 && i < deda.size(); ++i)
-				glayers[n][i] = deda[i] * layers[n][i] * (1 - layers[n][i]);
+			for (i = 0; n != 0 && i < glayers[n].size(); ++i)
+				glayers[n][i] *= layers[n][i] * (1 - layers[n][i]);
 			break;
 		case SoftMax:
 			break;
@@ -217,7 +221,6 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 			break;
 		}
 	}
-	
 }
 
 static float to_float(const char* str) {
