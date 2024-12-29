@@ -38,5 +38,6 @@ public:
 	void BackProp(vector<float> y, bool cfl = false);
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
+	void ResetGradients();
 };
 

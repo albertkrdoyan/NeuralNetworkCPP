@@ -53,7 +53,7 @@ void NeuralNetwork::PrintLayers(size_t layer) {
 	for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
 		printf("Layer [%zu]: ", i);
 		for (const auto& neuron : layers[i])
-			printf("%f ", neuron);
+			printf("%.10f ", neuron);
 		printf("\n");
 	}
 }
@@ -64,7 +64,7 @@ void NeuralNetwork::PrintWeights() {
 		for (const auto& line : weights[i]) {
 			printf("\t[");
 			for (const auto& weight : line)
-				printf(" %f", weight);
+				printf(" %.10f", weight);
 			printf(" ]\n");
 		}
 		printf("]\n");
@@ -77,7 +77,7 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 		for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
 			printf("GLayer [%zu]: ", i);
 			for (const auto& neuron : glayers[i])
-				printf("%f ", neuron);
+				printf("%.10f ", neuron);
 			printf("\n");
 		}
 	}
@@ -87,7 +87,7 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 			for (const auto& line : gradients[i]) {
 				printf("\t[");
 				for (const auto& weight : line)
-					printf(" %f", weight);
+					printf(" %.10f", weight);
 				printf(" ]\n");
 			}
 			printf("]\n");
@@ -198,18 +198,18 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 
 	for (int n = layers_count - 2; n >= 0; --n) {
 		for (i = 0; i < weights[n].size(); ++i) {
-			gradients[n][i].back() += glayers[n + 1][i];
+			gradients[n][i].back() += glayers[n + 1][i]; // de/db
 			for (j = 0; j < weights[n][0].size() - 1; ++j) {
-				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j];
-				glayers[n][j] += glayers[n + 1][i] * weights[n][i][j];
+				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
+				glayers[n][j] += glayers[n + 1][i] * weights[n][i][j]; // de/da
 			}
 		}
 		
-		switch (act)
+		switch (act) // de/dz(l - 1)
 		{
 		case ReLU:
 			for (i = 0; n != 0 && i < glayers[n].size(); ++i)
-				glayers[n][i] *= (layers[n][i] > 0 ? layers[n][i] : 0);
+				glayers[n][i] *= (layers[n][i] > 0 ? 1 : 0);
 			break;
 		case Sigmoid:
 			for (i = 0; n != 0 && i < glayers[n].size(); ++i)
@@ -304,6 +304,21 @@ void NeuralNetwork::SaveWeights(const char* path)
 	}
 	else {
 		printf("Not Open\n");
+	}
+}
+
+void NeuralNetwork::ResetGradients()
+{
+	for (auto& line : glayers) {
+		for (auto& gn : line)
+			gn = 0;
+	}
+
+	for (auto& block : gradients) {
+		for (auto& line : block) {
+			for (auto& gw : line)
+				gw = 0;
+		}
 	}
 }
 
