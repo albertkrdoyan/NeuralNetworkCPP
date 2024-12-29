@@ -198,15 +198,7 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 		size_t j = 0, i = 0;
 		vector<float> deda(weights[n][j].size() - 1, 0);
 		
-		for (j = 0; j < weights[n].size(); ++j) {
-			for (i = 0; i < weights[n][j].size() - 1; ++i) {
-				gradients[n][j][i] += glayers[n + 1][j] * layers[n][i];
-				deda[i] += weights[n][j][i];		//
-				if (j == weights[n].size() - 1)		// de/da
-					deda[i] *= glayers[n + 1][j];	//
-			}
-			gradients[n][j][i] = glayers[n + 1][j]; // de/db
-		}
+		///
 
 		
 		switch (act)
