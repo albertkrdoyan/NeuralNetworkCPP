@@ -1,21 +1,5 @@
-﻿  Main.cpp
-  NeuralNetwork.cpp
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(104,9): warning C4477: "printf": в строке форматирования "%d" требуется аргумент типа "int", но вариативный аргумент "1" имеет тип "size_t"
-      C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(104,9):
-      рекомендуется использовать "%zd" в строке форматирования
-  
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(104,9): warning C4477: "printf": в строке форматирования "%d" требуется аргумент типа "int", но вариативный аргумент "2" имеет тип "size_t"
-      C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(104,9):
-      рекомендуется использовать "%zd" в строке форматирования
-  
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(106,10): warning C4477: "printf": в строке форматирования "%d" требуется аргумент типа "int", но вариативный аргумент "1" имеет тип "const _Ty"
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(106,10): warning C4477:         with
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(106,10): warning C4477:         [
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(106,10): warning C4477:             _Ty=size_t
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(106,10): warning C4477:         ]
-      C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(106,10):
-      рекомендуется использовать "%zd" в строке форматирования
-  
-C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(267,13): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
-  Создание кода...
-  NN.vcxproj -> C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe
+﻿  NeuralNetwork.cpp
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(268,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(507,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(534,1): warning C4172: returning address of local variable or temporary : result
+  NN.vcxproj -> C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\x64\Debug\NN.exe

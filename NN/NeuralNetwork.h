@@ -5,6 +5,7 @@
 #include <thread>
 #include <omp.h>
 #include <fstream>
+#include <chrono>
 
 using std::vector;
 using std::thread;
@@ -41,5 +42,7 @@ public:
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
 	void ResetGradients();
+	void Optimizing(float);
+	void Train(vector<vector<float>>&, vector<vector<float>>&, int, size_t, float);
 };
 

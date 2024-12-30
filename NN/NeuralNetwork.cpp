@@ -3,15 +3,17 @@
 float SigmoidFunction(float);
 void SoftMaxFunction(vector<float>&, size_t);
 void NMPThread(size_t, size_t, size_t, vector<vector<float>>&, vector<size_t>&, vector<vector<vector<float>>>&);
+static char* GetTimeFromMilliseconds(long long);
 
 NeuralNetwork::NeuralNetwork() {
 	const auto processor_count = std::thread::hardware_concurrency();
 	//printf("Cores in CPU: %u.\n", processor_count);
 
-	this->threads_count = (processor_count > 2 ? processor_count - 2 : 1);
+	this->threads_count = 4;
 	this->llact = act = ReLU;
 	this->layers_count = 0;
 	this->loss = SquaredError;
+	this->opt = GradientDescent;
 }
 
 int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
@@ -101,9 +103,9 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 
 void NeuralNetwork::PrintInfo()
 {
-	printf("Threads count: %d\nLayers count %d: ", threads_count, layers_count);
+	printf("Threads count: %zu\nLayers count %zu: ", threads_count, layers_count);
 	for (const auto& ns : neurons_per_layer)
-		printf("%d, ", ns);
+		printf("%zu, ", ns);
 	printf("\nMain activation function: ");
 	switch (act)
 	{
@@ -199,19 +201,18 @@ void NeuralNetwork::NeuralMultiplication(vector<float> &fln) {
 	size_t i = 0, j = 0, k = 0;
 
 	layers[0] = std::ref(fln);
-	/*for (i = 0; i < fln.size(); ++i)
-		layers[0][i] = fln[i];*/
 
 	for (i = 1; i < layers_count; ++i) {
 		//#pragma omp parallel for shared(layers, weights, neurons_per_layer) private(j, k)
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
-			layers[i][j] = 0.f;
+			float sum = 0.f;
 
 			//#pragma omp simd reduction(+:sum)
 			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k)
-				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
+				sum += layers[i - 1][k] * weights[i - 1][j][k];
 
-			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
+			sum += weights[i - 1][j][neurons_per_layer[i - 1]];
+			layers[i][j] = sum;
 		}
 
 		Activation(i, (i != layers_count - 1 ? act : llact));
@@ -264,8 +265,7 @@ void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
 
 	size_t j = 0, i = 0;
 
-	for (int n = layers_count - 2; n >= 0; --n) {
-		
+	for (int n = layers_count - 2; n >= 0; --n) {		
 		// thread
 		for (i = 0; i < weights[n].size(); ++i) {
 			gradients[n][i].back() += glayers[n + 1][i]; // de/db
@@ -397,6 +397,52 @@ void NeuralNetwork::ResetGradients()
 	}
 }
 
+void NeuralNetwork::Optimizing(float alpha)
+{
+	size_t n = 0, i = 0, j = 0;
+
+	if (opt == GradientDescent) {
+		for (n = 0; n < weights.size(); ++n) {
+			for (i = 0; i < weights[n].size(); ++i) {
+				for (j = 0; j < weights[n][i].size(); ++j) {
+					weights[n][i][j] -= alpha * gradients[n][i][j];
+					gradients[n][i][j] = .0f;
+				}
+			}
+		}
+	}
+}
+
+void printString(const char* str) {
+	for (size_t i = 0; str[i] != '\0'; ++i)
+		printf("%c", str[i]);
+}
+
+void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& ys, int lvl, size_t batch, float alpha)
+{
+	size_t size = (inputs.size() / batch), btch = 0;
+	std::chrono::steady_clock::time_point start, end;
+	long long duration;
+
+	for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));
+		start = std::chrono::high_resolution_clock::now();
+		for (btch = i * batch; btch < (i == size - 1 ? inputs.size() : (i + 1) * batch); ++btch) {
+			NeuralMultiplication(inputs[btch]);
+			BackProp(ys[btch]);
+		}		
+		Optimizing(alpha);
+
+		end = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+		//printf("Function execution time: %zu miliseconds.", duration);
+		if (i % 10 == 0) {
+			printf("ETA: ");
+			printString(GetTimeFromMilliseconds((long long)(size - i - 1) * duration));
+			printf("\n");
+		}
+	}
+}
+
 float SigmoidFunction(float x) {
 	return 1 / (1 + exp(-x));
 }
@@ -434,4 +480,56 @@ void NMPThread(size_t i, size_t st, size_t end, vector<vector<float>>& layers, v
 
 		layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
 	}
+}
+
+static int _strcpy(char* target, const char* source, int st) {
+	int i = 0;
+
+	for (i; source[i] != '\0'; ++i)
+		target[st + i] = source[i];
+
+	target[st + i] = '\0';
+
+	return st + i;
+}
+
+static int _strcpy(char* target, long long num, int st) {
+	int i = 0;
+
+	vector<char> line;
+
+	do {
+		line.push_back(num % 10 + '0');
+		num -= num % 10;
+		num /= 10;
+	} while (num != 0);
+
+	for (int j = line.size() - 1; j > -1; --j)
+		target[st + i++] = line[j];
+
+	target[st + i] = '\0';
+
+	return st + i;
+}
+
+char* GetTimeFromMilliseconds(long long millisecond)
+{
+	long long seconds = millisecond / 1000;
+	millisecond %= 1000;
+	long long minutes = seconds / 60;
+	seconds %= 60;
+	long long hours = minutes / 60;
+	seconds %= 60;
+
+	char result[128];
+	int i = 0;
+	i = _strcpy(result, "Hours: ", i);
+	i = _strcpy(result, hours, i);
+	i = _strcpy(result, ", minutes: ", i);
+	i = _strcpy(result, minutes, i);
+	i = _strcpy(result, ", seconds: ", i);
+	i = _strcpy(result, seconds, i);
+	i = _strcpy(result, ", milliseconds: ", i);
+	i = _strcpy(result, millisecond, i);
+	return result;
 }

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <chrono>
 #include "NeuralNetwork.h"
 
 int main() {
@@ -9,23 +8,18 @@ int main() {
 	//nn.LoadWeights("weights.txt");
 	nn.PrintInfo();
 
-	vector<float> input(28*28, 0.5);
-	vector<float> y = {0,0,0,0,0,1,0,0,0,0};
+	vector<vector<float>> inputs(60000, vector<float>(28*28, .0f));
+	vector<vector<float>> ys(60000, vector<float>(10, .0f));
 
 	std::cout << "Start\n";
 	auto start = std::chrono::high_resolution_clock::now();
 
-	for (size_t i = 0; i < 500; ++i) {
-		nn.NeuralMultiplication(std::ref(input));
-		nn.BackProp(std::ref(y), false);
-		if (i % 16 == 0)
-			nn.ResetGradients();
-	}
+	nn.Train(std::ref(inputs), std::ref(ys), 1, 32, 0.01f);
 
 	auto end = std::chrono::high_resolution_clock::now();
 
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	std::cout << "Function execution time: " << duration.count() << " miliseconds" << std::endl;
+	std::cout << "\nFunction execution time: " << duration.count() << " miliseconds" << std::endl;
 
 	/*nn.PrintLayers(0);
 	nn.PrintWeights();
