@@ -519,7 +519,7 @@ char* GetTimeFromMilliseconds(long long millisecond)
 	long long minutes = seconds / 60;
 	seconds %= 60;
 	long long hours = minutes / 60;
-	seconds %= 60;
+	minutes %= 60;
 
 	char result[128];
 	int i = 0;
