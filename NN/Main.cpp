@@ -16,8 +16,8 @@ int main() {
 	auto start = std::chrono::high_resolution_clock::now();
 
 	for (size_t i = 0; i < 500; ++i) {
-		nn.NeuralMultiplication(input);
-		nn.BackProp(y);
+		nn.NeuralMultiplication(std::ref(input));
+		nn.BackProp(std::ref(y), false);
 		if (i % 16 == 0)
 			nn.ResetGradients();
 	}

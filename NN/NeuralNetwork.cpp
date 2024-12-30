@@ -161,13 +161,14 @@ void NeuralNetwork::PrintInfo()
 	printf("\n");
 }
 
-void NeuralNetwork::NeuralMultiplicationT(vector<float> fln) {
+void NeuralNetwork::NeuralMultiplicationT(vector<float>& fln) {
 	if (fln.size() != layers[0].size()) return;
 
 	size_t i = 0, j = 0, k = 0;
 
-	for (i = 0; i < fln.size(); ++i)
-		layers[0][i] = fln[i];	
+	layers[0] = std::ref(fln);
+	/*for (i = 0; i < fln.size(); ++i)
+		layers[0][i] = fln[i];	*/
 
 	for (i = 1; i < layers_count; ++i) {
 		size_t c_t_c = (neurons_per_layer[i] < 64 ? 1 : threads_count);
@@ -192,26 +193,25 @@ void NeuralNetwork::NeuralMultiplicationT(vector<float> fln) {
 	}
 }
 
-void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
+void NeuralNetwork::NeuralMultiplication(vector<float> &fln) {
 	if (fln.size() != layers[0].size()) return;
 
 	size_t i = 0, j = 0, k = 0;
 
-	for (i = 0; i < fln.size(); ++i)
-		layers[0][i] = fln[i];
+	layers[0] = std::ref(fln);
+	/*for (i = 0; i < fln.size(); ++i)
+		layers[0][i] = fln[i];*/
 
 	for (i = 1; i < layers_count; ++i) {
 		//#pragma omp parallel for shared(layers, weights, neurons_per_layer) private(j, k)
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
-			float sum = 0.f;
+			layers[i][j] = 0.f;
 
 			//#pragma omp simd reduction(+:sum)
-			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k) {
-				sum += layers[i - 1][k] * weights[i - 1][j][k];
-			}
+			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k)
+				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
 
-			sum += weights[i - 1][j][neurons_per_layer[i - 1]];
-			layers[i][j] = sum;
+			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
 		}
 
 		Activation(i, (i != layers_count - 1 ? act : llact));
@@ -238,7 +238,7 @@ void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
 	}
 }
 
-void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
+void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
 {
 	if (y.size() != layers.back().size()) return;
 	
@@ -265,28 +265,35 @@ void NeuralNetwork::BackProp(vector<float> y, bool calculate_first_layer)
 	size_t j = 0, i = 0;
 
 	for (int n = layers_count - 2; n >= 0; --n) {
+		
+		// thread
 		for (i = 0; i < weights[n].size(); ++i) {
 			gradients[n][i].back() += glayers[n + 1][i]; // de/db
 			for (j = 0; j < weights[n][0].size() - 1; ++j) {
 				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
-				glayers[n][j] += glayers[n + 1][i] * weights[n][i][j]; // de/da
+				if (n != 0 || calculate_first_layer)
+					glayers[n][j] += glayers[n + 1][i] * weights[n][i][j]; // de/da
 			}
 		}
 		
-		switch (act) // de/dz(l - 1)
-		{
-		case ReLU:
-			for (i = 0; n != 0 && i < glayers[n].size(); ++i)
-				glayers[n][i] *= (layers[n][i] > 0 ? 1 : 0);
-			break;
-		case Sigmoid:
-			for (i = 0; n != 0 && i < glayers[n].size(); ++i)
-				glayers[n][i] *= layers[n][i] * (1 - layers[n][i]);
-			break;
-		case SoftMax:
-			break;
-		default:
-			break;
+		if (n != 0 || calculate_first_layer) {
+			switch (act) // de/dz(l - 1)
+			{
+			case ReLU:
+				//#pragma omp parallel for
+				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
+					glayers[n][i] *= (layers[n][i] > 0 ? 1 : 0);
+				break;
+			case Sigmoid:
+				//#pragma omp parallel for
+				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
+					glayers[n][i] *= layers[n][i] * (1 - layers[n][i]);
+				break;
+			case SoftMax:
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }

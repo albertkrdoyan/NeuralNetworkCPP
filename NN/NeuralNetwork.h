@@ -34,10 +34,10 @@ public:
 	void PrintWeights();
 	void PrintGradients(const char*, size_t);
 	void PrintInfo();
-	void NeuralMultiplication(vector<float>);
-	void NeuralMultiplicationT(vector<float> fln);
+	void NeuralMultiplication(vector<float>&);
+	void NeuralMultiplicationT(vector<float>&);
 	void Activation(size_t layer, ActivationFunction);
-	void BackProp(vector<float> y, bool cfl = false);
+	void BackProp(vector<float>& y, bool cfl = false);
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
 	void ResetGradients();
