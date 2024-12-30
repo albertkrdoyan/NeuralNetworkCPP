@@ -13,6 +13,7 @@ using std::ofstream;
 
 enum ActivationFunction {ReLU, Sigmoid, SoftMax};
 enum LossFunction {CrossEntropy, SquaredError};
+enum Optimizer {Adam, GradientDescent};
 
 class NeuralNetwork
 {
@@ -25,13 +26,14 @@ private:
 	vector<vector<vector<float>>> gradients;
 	ActivationFunction act, llact;
 	LossFunction loss;
-
+	Optimizer opt;
 public:
 	NeuralNetwork();
-	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss);
+	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt);
 	void PrintLayers(size_t);
 	void PrintWeights();
 	void PrintGradients(const char*, size_t);
+	void PrintInfo();
 	void NeuralMultiplication(vector<float>);
 	void NeuralMultiplicationT(vector<float> fln);
 	void Activation(size_t layer, ActivationFunction);

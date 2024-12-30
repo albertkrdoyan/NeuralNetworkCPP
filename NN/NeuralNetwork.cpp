@@ -5,13 +5,16 @@ void SoftMaxFunction(vector<float>&, size_t);
 void NMPThread(size_t, size_t, size_t, vector<vector<float>>&, vector<size_t>&, vector<vector<vector<float>>>&);
 
 NeuralNetwork::NeuralNetwork() {
-	this->threads_count = 1;
+	const auto processor_count = std::thread::hardware_concurrency();
+	//printf("Cores in CPU: %u.\n", processor_count);
+
+	this->threads_count = (processor_count > 2 ? processor_count - 2 : 1);
 	this->llact = act = ReLU;
 	this->layers_count = 0;
 	this->loss = SquaredError;
 }
 
-int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss) {
+int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
 	neurons_per_layer = npl;
 	layers_count = neurons_per_layer.size();
 
@@ -45,6 +48,7 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 	this->act = act;
 	this->llact = llact;
 	this->loss = loss;
+	this->opt = opt;
 
 	return 0;
 }
@@ -95,6 +99,68 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 	}
 }
 
+void NeuralNetwork::PrintInfo()
+{
+	printf("Threads count: %d\nLayers count %d: ", threads_count, layers_count);
+	for (const auto& ns : neurons_per_layer)
+		printf("%d, ", ns);
+	printf("\nMain activation function: ");
+	switch (act)
+	{
+	case ReLU:
+		printf("ReLU");
+		break;
+	case Sigmoid:
+		printf("Sigmoid");
+		break;
+	case SoftMax:
+		printf("SoftMax");
+		break;
+	default:
+		break;
+	}
+	printf("\nLast layer activation function: ");
+	switch (llact)
+	{
+	case ReLU:
+		printf("ReLU");
+		break;
+	case Sigmoid:
+		printf("Sigmoid");
+		break;
+	case SoftMax:
+		printf("SoftMax");
+		break;
+	default:
+		break;
+	}
+	printf("\nLoss function: ");
+	switch (loss)
+	{
+	case CrossEntropy:
+		printf("Cross Entropy");
+		break;
+	case SquaredError:
+		printf("Squared Error");
+		break;
+	default:
+		break;
+	}
+	printf("\nOptimization method: ");
+	switch (opt)
+	{
+	case Adam:
+		printf("Adam");
+		break;
+	case GradientDescent:
+		printf("Gradient Descent");
+		break;
+	default:
+		break;
+	}
+	printf("\n");
+}
+
 void NeuralNetwork::NeuralMultiplicationT(vector<float> fln) {
 	if (fln.size() != layers[0].size()) return;
 
@@ -135,15 +201,17 @@ void NeuralNetwork::NeuralMultiplication(vector<float> fln) {
 		layers[0][i] = fln[i];
 
 	for (i = 1; i < layers_count; ++i) {
-		//#pragma omp parallel for
+		//#pragma omp parallel for shared(layers, weights, neurons_per_layer) private(j, k)
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
-			layers[i][j] = 0.f;
+			float sum = 0.f;
 
+			//#pragma omp simd reduction(+:sum)
 			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k) {
-				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
+				sum += layers[i - 1][k] * weights[i - 1][j][k];
 			}
 
-			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
+			sum += weights[i - 1][j][neurons_per_layer[i - 1]];
+			layers[i][j] = sum;
 		}
 
 		Activation(i, (i != layers_count - 1 ? act : llact));

@@ -3,13 +3,11 @@
 #include "NeuralNetwork.h"
 
 int main() {
-	const auto processor_count = std::thread::hardware_concurrency();
-	std::cout << processor_count << "\n";
-
 	NeuralNetwork nn;
 
-	nn.Init({28*28, 256, 10}, ActivationFunction::ReLU, ActivationFunction::SoftMax, LossFunction::CrossEntropy);
+	nn.Init({28*28, 256, 10}, ActivationFunction::ReLU, ActivationFunction::SoftMax, LossFunction::CrossEntropy, Optimizer::GradientDescent);
 	//nn.LoadWeights("weights.txt");
+	nn.PrintInfo();
 
 	vector<float> input(28*28, 0.5);
 	vector<float> y = {0,0,0,0,0,1,0,0,0,0};
