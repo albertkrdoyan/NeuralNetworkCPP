@@ -420,15 +420,25 @@ void printString(const char* str) {
 
 void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& ys, int lvl, size_t batch, float alpha)
 {
-	size_t size = (inputs.size() / batch), btch = 0;
+	errors.clear();
+	size_t size = (inputs.size() / batch), btch = 0, err = 0;
+	errors.reserve(size);
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
 
 	for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));
 		start = std::chrono::high_resolution_clock::now();
+		errors.push_back(.0f);
 		for (btch = i * batch; btch < (i == size - 1 ? inputs.size() : (i + 1) * batch); ++btch) {
 			NeuralMultiplication(inputs[btch]);
 			BackProp(ys[btch]);
+
+			if (loss == SquaredError) {
+				for (err = 0; err < ys[btch].size(); ++err) {
+					errors.back() += pow(ys[btch][err] - layers.back()[err], 2);
+				}
+			}
+			
 		}		
 		Optimizing(alpha);
 
@@ -441,6 +451,8 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 			printf("\n");
 		}
 	}
+
+	plot(errors);
 }
 
 float SigmoidFunction(float x) {
@@ -532,4 +544,16 @@ char* GetTimeFromMilliseconds(long long millisecond)
 	i = _strcpy(result, ", milliseconds: ", i);
 	i = _strcpy(result, millisecond, i);
 	return result;
+}
+
+void plot(vector<float> arr) {
+	ofstream wr;
+	wr.open("plot.txt");
+
+	for (size_t i = 0; i < arr.size(); ++i)
+		wr << arr[i] << '\n';
+
+	wr.close();
+
+	system("plot.py");
 }

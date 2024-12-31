@@ -12,6 +12,8 @@ using std::thread;
 using std::ifstream;
 using std::ofstream;
 
+void plot(vector<float>);
+
 enum ActivationFunction {ReLU, Sigmoid, SoftMax};
 enum LossFunction {CrossEntropy, SquaredError};
 enum Optimizer {Adam, GradientDescent};
@@ -28,6 +30,7 @@ private:
 	ActivationFunction act, llact;
 	LossFunction loss;
 	Optimizer opt;
+	vector<float> errors;
 public:
 	NeuralNetwork();
 	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt);

@@ -4,12 +4,12 @@
 int main() {
 	NeuralNetwork nn;
 
-	nn.Init({28*28, 256, 10}, ActivationFunction::ReLU, ActivationFunction::SoftMax, LossFunction::CrossEntropy, Optimizer::GradientDescent);
+	nn.Init({50, 128, 2}, ActivationFunction::ReLU, ActivationFunction::SoftMax, LossFunction::CrossEntropy, Optimizer::GradientDescent);
 	//nn.LoadWeights("weights.txt");
 	nn.PrintInfo();
 
-	vector<vector<float>> inputs(60000, vector<float>(28*28, .0f));
-	vector<vector<float>> ys(60000, vector<float>(10, .0f));
+	vector<vector<float>> inputs(1000, vector<float>(50, .0f));
+	vector<vector<float>> ys(1000, vector<float>(2, .0f));
 
 	std::cout << "Start\n";
 	auto start = std::chrono::high_resolution_clock::now();

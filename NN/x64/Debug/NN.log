@@ -1,5 +1,2 @@
-﻿  NeuralNetwork.cpp
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(268,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(507,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(534,1): warning C4172: returning address of local variable or temporary : result
-  NN.vcxproj -> C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\x64\Debug\NN.exe
+﻿  Main.cpp
+  NN.vcxproj -> C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe
