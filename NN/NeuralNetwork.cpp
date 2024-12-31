@@ -397,7 +397,7 @@ void NeuralNetwork::ResetGradients()
 	}
 }
 
-void NeuralNetwork::Optimizing(float alpha)
+void NeuralNetwork::Optimizing(float alpha, float batch)
 {
 	size_t n = 0, i = 0, j = 0;
 
@@ -405,7 +405,7 @@ void NeuralNetwork::Optimizing(float alpha)
 		for (n = 0; n < weights.size(); ++n) {
 			for (i = 0; i < weights[n].size(); ++i) {
 				for (j = 0; j < weights[n][i].size(); ++j) {
-					weights[n][i][j] -= alpha * gradients[n][i][j];
+					weights[n][i][j] -= alpha * gradients[n][i][j] / batch;
 					gradients[n][i][j] = .0f;
 				}
 			}
@@ -426,29 +426,37 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
 
-	for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));
-		start = std::chrono::high_resolution_clock::now();
-		errors.push_back(.0f);
-		for (btch = i * batch; btch < (i == size - 1 ? inputs.size() : (i + 1) * batch); ++btch) {
-			NeuralMultiplication(inputs[btch]);
-			BackProp(ys[btch]);
+	for (size_t l = 0; l < lvl; ++l) {
+		Shuffle(inputs, ys);
+		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));
+			start = std::chrono::high_resolution_clock::now();
+			errors.push_back(.0f);
+			for (btch = i * batch; btch < (i == size - 1 ? inputs.size() : (i + 1) * batch); ++btch) {
+				NeuralMultiplication(inputs[btch]);
+				BackProp(ys[btch]);
 
-			if (loss == SquaredError) {
-				for (err = 0; err < ys[btch].size(); ++err) {
-					errors.back() += pow(ys[btch][err] - layers.back()[err], 2);
+				if (loss == SquaredError) {
+					for (err = 0; err < ys[btch].size(); ++err) {
+						errors.back() += (float)pow(ys[btch][err] - layers.back()[err], 2);
+					}
 				}
-			}
-			
-		}		
-		Optimizing(alpha);
+				else if (loss == CrossEntropy) {
+					for (err = 0; err < ys[btch].size(); ++err) {
+						errors.back() += (ys[btch][err] == 0 ? 0 : -log(layers.back()[err]));
+					}
+				}
 
-		end = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-		//printf("Function execution time: %zu miliseconds.", duration);
-		if (i % 10 == 0) {
-			printf("ETA: ");
-			printString(GetTimeFromMilliseconds((long long)(size - i - 1) * duration));
-			printf("\n");
+			}
+			Optimizing(alpha, (float)batch);
+
+			end = std::chrono::high_resolution_clock::now();
+			duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+			//printf("Function execution time: %zu miliseconds.", duration);
+			if (i % 10 == -1) {
+				printf("ETA: ");
+				printString(GetTimeFromMilliseconds((long long)(size - i - 1) * duration * (lvl - l - 1)));
+				printf("\n");
+			}
 		}
 	}
 
@@ -556,4 +564,16 @@ void plot(vector<float> arr) {
 	wr.close();
 
 	system("plot.py");
+}
+
+template <class T>
+void Shuffle(vector<T> &v1, vector<T> &v2) {
+	srand(time(NULL));
+
+	for (size_t i = 0; i < v1.size() - 1; ++i) {
+		size_t j = i + rand() % (v1.size() - i);
+
+		std::swap(v1[i], v1[j]);
+		std::swap(v2[i], v2[j]);
+	}
 }

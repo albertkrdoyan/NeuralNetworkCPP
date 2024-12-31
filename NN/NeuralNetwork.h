@@ -6,6 +6,7 @@
 #include <omp.h>
 #include <fstream>
 #include <chrono>
+#include <time.h>
 
 using std::vector;
 using std::thread;
@@ -13,10 +14,12 @@ using std::ifstream;
 using std::ofstream;
 
 void plot(vector<float>);
+template <class T>
+void Shuffle(vector<T>&, vector<T>&);
 
 enum ActivationFunction {ReLU, Sigmoid, SoftMax};
 enum LossFunction {CrossEntropy, SquaredError};
-enum Optimizer {Adam, GradientDescent};
+enum Optimizer { Adam, GradientDescent };
 
 class NeuralNetwork
 {
@@ -45,7 +48,6 @@ public:
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
 	void ResetGradients();
-	void Optimizing(float);
+	void Optimizing(float, float);
 	void Train(vector<vector<float>>&, vector<vector<float>>&, int, size_t, float);
 };
-
