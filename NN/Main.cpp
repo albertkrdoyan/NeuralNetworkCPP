@@ -2,48 +2,48 @@
 #include "NeuralNetwork.h"
 
 int main() {
-	//NeuralNetwork square;
+	NeuralNetwork square;
 
-	//square.Init({1,1}, 
-	//	ActivationFunction::Linear,
-	//	ActivationFunction::Linear,
-	//	LossFunction::SquaredError,
-	//	Optimizer::GradientDescent
-	//);
+	square.Init({2,1}, 
+		ActivationFunction::Linear,
+		ActivationFunction::Linear,
+		LossFunction::SquaredError,
+		Optimizer::Adam
+	);
+	
+	vector<vector<float>> sInputs;
+	// vector<vector<float>> sInputs = { {5}, {2}, {1}, {6}, {8}, {5}, {9}, {1}, {0}, {3} };
+	vector<vector<float>> sAnswers;
 
-	//vector<vector<float>> sInputs;
-	//// vector<vector<float>> sInputs = { {5}, {2}, {1}, {6}, {8}, {5}, {9}, {1}, {0}, {3} };
-	//vector<vector<float>> sAnswers;
+	srand(time(NULL));
+	for (size_t i = 0; i < 10; ++i) {
+		sInputs.push_back({(float)(rand() % 50), 1.0f});
+		sAnswers.push_back({ sInputs.back()[0] * 5.0f });
+	}
 
-	//srand(time(NULL));
-	//for (size_t i = 0; i < 50; ++i) {
-	//	sInputs.push_back({(float)(rand() % 50)});
-	//	sAnswers.push_back({sInputs.back()[0] * 1.8f + 2.2f});
-	//}
+	square.Train(sInputs, sAnswers, 50, 4, 0.1f);
 
-	//square.Train(sInputs, sAnswers, 150, 2, 0.000001f);
+	/*vector<float> sTest = {10};
+	square.NeuralMultiplication(sTest);
+	square.PrintLayers(0);*/
+	square.PrintWeights();
 
-	///*vector<float> sTest = {10};
-	//square.NeuralMultiplication(sTest);
-	//square.PrintLayers(0);*/
-	//square.PrintWeights();
+	for (auto& v : sInputs) {
+		square.NeuralMultiplication(v);
+		std::cout << "\n" << v[0] << " : ";
+		square.PrintLayers(1);
+	}
 
-	//for (auto& v : sInputs) {
-	//	square.NeuralMultiplication(v);
-	//	std::cout << "\n" << v[0] << " : ";
-	//	square.PrintLayers(1);
-	//}
+	vector<float> sTest = { 25, 1.0f };
+	square.NeuralMultiplication(sTest);
+	std::cout << "\n" << sTest[0] << " : ";
+	square.PrintLayers(1);
 
-	//vector<float> sTest = { 25 };
-	//square.NeuralMultiplication(sTest);
-	//std::cout << "\n" << sTest[0] << " : ";
-	//square.PrintLayers(1);
-
-	//square.SaveWeights("squareplus.txt");
-	//return 0;
+	square.SaveWeights("squareplus.txt");
+	return 0;
 	NeuralNetwork nn;
 
-	nn.Init({10, 16, 2}, ActivationFunction::Sigmoid, ActivationFunction::SoftMax, LossFunction::CrossEntropy, Optimizer::GradientDescent);
+	nn.Init({10, 32, 2}, ActivationFunction::Sigmoid, ActivationFunction::SoftMax, LossFunction::CrossEntropy, Optimizer::Adam);
 	srand(time(NULL));
 
 	vector<vector<float>> inputs(1000);

@@ -9,6 +9,9 @@ NeuralNetwork::NeuralNetwork() {
 	const auto processor_count = std::thread::hardware_concurrency();
 	//printf("Cores in CPU: %u.\n", processor_count);
 
+	this->t = 1;
+	this->betta1 = 0.9f;
+	this->betta2 = 0.999f;
 	this->threads_count = 4;
 	this->llact = act = ReLU;
 	this->layers_count = 0;
@@ -30,10 +33,14 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 
 	weights = vector<vector<vector<float>>>(layers_count - 1);
 	gradients = vector<vector<vector<float>>>(layers_count - 1);
+	moment1 = vector<vector<vector<float>>>(layers_count - 1);
+	moment2 = vector<vector<vector<float>>>(layers_count - 1);
 
 	for (size_t i = 0; i < layers_count - 1; ++i) {
 		weights[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
 		gradients[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
+		moment1[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
+		moment2[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
 	}
 
 	std::random_device rd; // Seed for the random number engine
@@ -414,6 +421,24 @@ void NeuralNetwork::Optimizing(float alpha, float batch)
 				}
 			}
 		}
+	}
+	else {
+		float m1H = 0, m2H = 0, betta1toTpower = 1.0f, betta2toTpower = 1.0f;
+		for (n = 0; n < weights.size(); ++n) {
+			for (i = 0; i < weights[n].size(); ++i) {
+				for (j = 0; j < weights[n][i].size(); ++j) {
+					moment1[n][i][j] = betta1 * moment1[n][i][j] + (1 - betta1) * gradients[n][i][j];
+					moment2[n][i][j] = betta2 * moment2[n][i][j] + (1 - betta2) * gradients[n][i][j] * gradients[n][i][j];
+
+					m1H = moment1[n][i][j] / (1 - (betta1toTpower *= betta1));
+					m2H = moment2[n][i][j] / (1 - (betta2toTpower *= betta2));
+
+					weights[n][i][j] -= (alpha * m1H) / (sqrt(m2H) + 0.00000001);
+					gradients[n][i][j] = .0f;
+				}
+			}
+		}
+		t++;
 	}
 
 	ResetGradients();

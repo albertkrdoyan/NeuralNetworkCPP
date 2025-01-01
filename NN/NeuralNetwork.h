@@ -27,13 +27,17 @@ private:
 	size_t layers_count, threads_count;
 	vector<size_t> neurons_per_layer;
 	vector<vector<float>> layers;
-	vector<vector<float>> glayers;
+	vector<vector<float>> glayers;	
 	vector<vector<vector<float>>> weights;
 	vector<vector<vector<float>>> gradients;
+	vector<vector<vector<float>>> moment1;
+	vector<vector<vector<float>>> moment2;
 	ActivationFunction act, llact;
 	LossFunction loss;
 	Optimizer opt;
 	vector<float> errors;
+	float betta1, betta2;
+	int t;
 public:
 	NeuralNetwork();
 	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt);
