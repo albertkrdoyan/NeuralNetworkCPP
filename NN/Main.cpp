@@ -5,11 +5,11 @@ int main() {
 	NeuralNetwork square;
 
 	square.Init({2,5,1}, ActivationFunction::ReLU, ActivationFunction::ReLU, LossFunction::SquaredError, Optimizer::GradientDescent);
-	
+
 	vector<vector<float>> sInputs = { {5, 1}, {2, 1}, {1, 1}, {6, 1}, {8, 1}, {5, 1}, {9, 1}, {1, 1}, {0, 1}, {3, 1} };
 	vector<vector<float>> sAnswers = { {30}, {15}, {10}, {35}, {45}, {30}, {50}, {10}, {5}, {20} };
 
-	square.Train(sInputs, sAnswers, 50, 4, 0.000001f);
+	square.Train(sInputs, sAnswers, 100, 4, 0.000001f);
 
 	/*vector<float> sTest = {10};
 	square.NeuralMultiplication(sTest);
@@ -27,6 +27,7 @@ int main() {
 	std::cout << "\n" << sTest[0] << " : ";
 	square.PrintLayers(2);
 
+	square.SaveWeights("squareplus.txt");
 	return 0;
 	NeuralNetwork nn;
 

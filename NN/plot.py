@@ -6,7 +6,7 @@ arr = []
 reader = open('plot.txt', 'r')
 arr = reader.readlines()
 reader.close()
-#os.remove('plot.txt')
+#os.remove('plot_squareplus.txt')
 
 for i in range(len(arr)):
     arr[i] = float(arr[i])

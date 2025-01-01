@@ -445,8 +445,9 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 						errors.back() += (ys[btch][err] == 0 ? 0 : -log(layers.back()[err]));
 					}
 				}
-
 			}
+			errors.back() /= batch;
+
 			Optimizing(alpha, (float)batch);
 
 			end = std::chrono::high_resolution_clock::now();
