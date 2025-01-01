@@ -17,7 +17,7 @@ void plot(vector<float>);
 template <class T>
 void Shuffle(vector<T>&, vector<T>&);
 
-enum ActivationFunction {ReLU, Sigmoid, SoftMax};
+enum ActivationFunction {Linear, ReLU, Sigmoid, SoftMax};
 enum LossFunction {CrossEntropy, SquaredError};
 enum Optimizer { Adam, GradientDescent };
 

@@ -109,6 +109,9 @@ void NeuralNetwork::PrintInfo()
 	printf("\nMain activation function: ");
 	switch (act)
 	{
+	case Linear:
+		printf("Linear");
+		break;
 	case ReLU:
 		printf("ReLU");
 		break;
@@ -124,6 +127,9 @@ void NeuralNetwork::PrintInfo()
 	printf("\nLast layer activation function: ");
 	switch (llact)
 	{
+	case Linear:
+		printf("Linear");
+		break;
 	case ReLU:
 		printf("ReLU");
 		break;
@@ -252,12 +258,13 @@ void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
 	else {
 		for (size_t i = 0; i < neurons_per_layer.back(); ++i) {
 			// dE / dz
-			glayers.back()[i] = 1.0f;
 			if (loss == LossFunction::SquaredError)
-				glayers.back()[i] *= 2 * (layers.back()[i] - y[i]);
+				glayers.back()[i] = 2 * (layers.back()[i] - y[i]);
 
-			if (llact == ActivationFunction::ReLU)
-				glayers.back()[i] *= (layers.back()[i] > 0 ? layers.back()[i] : 0);
+			if (llact == ActivationFunction::Linear) 
+				glayers.back()[i] *= (layers.back()[i] == 0 ? 0 : (layers.back()[i] > 0 ? 1 : -1));
+			else if (llact == ActivationFunction::ReLU)
+				glayers.back()[i] *= (layers.back()[i] > 0 ? 1 : 0);
 			else if (llact == ActivationFunction::Sigmoid)
 				glayers.back()[i] *= layers.back()[i] * (1 - layers.back()[i]);
 		}
@@ -279,6 +286,10 @@ void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
 		if (n != 0 || calculate_first_layer) {
 			switch (act) // de/dz(l - 1)
 			{
+			case Linear:
+				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
+					glayers[n][i] *= (layers[n][i] == 0 ? 0 : (layers[n][i] > 0 ? 1 : -1));
+				break;
 			case ReLU:
 				//#pragma omp parallel for
 				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
@@ -388,13 +399,6 @@ void NeuralNetwork::ResetGradients()
 		for (auto& gn : line)
 			gn = 0;
 	}
-
-	for (auto& block : gradients) {
-		for (auto& line : block) {
-			for (auto& gw : line)
-				gw = 0;
-		}
-	}
 }
 
 void NeuralNetwork::Optimizing(float alpha, float batch)
@@ -411,6 +415,8 @@ void NeuralNetwork::Optimizing(float alpha, float batch)
 			}
 		}
 	}
+
+	ResetGradients();
 }
 
 void printString(const char* str) {
