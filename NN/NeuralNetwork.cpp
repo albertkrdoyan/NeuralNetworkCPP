@@ -268,9 +268,7 @@ void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
 			if (loss == LossFunction::SquaredError)
 				glayers.back()[i] = 2 * (layers.back()[i] - y[i]);
 
-			if (llact == ActivationFunction::Linear) 
-				glayers.back()[i] *= (layers.back()[i] == 0 ? 0 : (layers.back()[i] > 0 ? 1 : -1));
-			else if (llact == ActivationFunction::ReLU)
+			if (llact == ActivationFunction::ReLU)
 				glayers.back()[i] *= (layers.back()[i] > 0 ? 1 : 0);
 			else if (llact == ActivationFunction::Sigmoid)
 				glayers.back()[i] *= layers.back()[i] * (1 - layers.back()[i]);
@@ -279,11 +277,13 @@ void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
 
 	size_t j = 0, i = 0;
 
-	for (int n = layers_count - 2; n >= 0; --n) {		
-		// thread
+	for (int n = layers_count - 2; n >= 0; --n) {
 		for (i = 0; i < weights[n].size(); ++i) {
 			gradients[n][i].back() += glayers[n + 1][i]; // de/db
+			
 			for (j = 0; j < weights[n][0].size() - 1; ++j) {
+				if (i == 0) glayers[n][j] = .0f;
+
 				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
 				if (n != 0 || calculate_first_layer)
 					glayers[n][j] += glayers[n + 1][i] * weights[n][i][j]; // de/da
@@ -293,10 +293,6 @@ void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
 		if (n != 0 || calculate_first_layer) {
 			switch (act) // de/dz(l - 1)
 			{
-			case Linear:
-				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
-					glayers[n][i] *= (layers[n][i] == 0 ? 0 : (layers[n][i] > 0 ? 1 : -1));
-				break;
 			case ReLU:
 				//#pragma omp parallel for
 				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
@@ -441,7 +437,7 @@ void NeuralNetwork::Optimizing(float alpha, float batch)
 		t++;
 	}
 
-	ResetGradients();
+	//ResetGradients();
 }
 
 void printString(const char* str) {

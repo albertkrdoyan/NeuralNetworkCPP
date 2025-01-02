@@ -1,4 +1,2 @@
 ﻿  Main.cpp
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(18,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(47,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   NN.vcxproj -> C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\x64\Debug\NN.exe
