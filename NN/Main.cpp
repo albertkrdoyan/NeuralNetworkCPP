@@ -92,27 +92,7 @@ int main() {
 
 	//nn.SaveWeights("weights_for_odd_even.txt");
 	}
-	ifstream open;
-	open.open("digitTXT.txt");
-	char c = '\0';
-	int numb = 0;
-
-	while ((c = open.get()) != -1) {
-		if (c == '\n' || c == ' ') {
-			if (numb == 0)
-				printf(" ");
-			else
-				printf("X");
-			numb = 0;
-			
-			if (c == '\n')
-				printf("\n");
-		}
-		else {
-			numb *= 10;
-			numb += c - '0';
-		}
-	}
+	
 
 	return 0;
 }
