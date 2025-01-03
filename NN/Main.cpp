@@ -93,11 +93,15 @@ int main() {
 	//nn.SaveWeights("weights_for_odd_even.txt");
 	}
 	printf("Start Load\n");
-	vector<vector<float>> TrainX(10000, vector<float>(28*28));
-	vector<vector<float>> TrainY(10000, vector<float>(10, 0));
+	vector<vector<float>> TrainX(60000, vector<float>(28 * 28));
+	vector<vector<float>> TrainY(60000, vector<float>(10, 0));
+	vector<vector<float>> TestX(10000, vector<float>(28 * 28));
+	vector<vector<float>> TestY(10000, vector<float>(10, 0));
 
-	LoadX(TrainX, "Digits2/testX.txt");
-	LoadY(TrainY, "Digits2/testY.txt");
+	LoadX(TrainX, "Digits2/trainX.txt");
+	LoadY(TrainY, "Digits2/trainY.txt");
+	LoadX(TestX, "Digits2/testX.txt");
+	LoadY(TestY, "Digits2/testY.txt");
 
 	NeuralNetwork nn;
 	nn.Init(
@@ -109,18 +113,18 @@ int main() {
 	);
 
 	printf("Start Train\n");
-	nn.Train(TrainX, TrainY, 3, 16, 0.01);
+	nn.Train(TrainX, TrainY, 4, 32, 0.03);
 
 	float corrects = .0f;
 	size_t i = 0, j = 0;
 	for (j = 0; j < 10000; ++j) {
-		nn.NeuralMultiplication(TrainX[j]);
+		nn.NeuralMultiplication(TestX[j]);
 		
 		auto ans = nn.GetLastLayer();
 		int realNum = -1, guessNum = -1, guessI = -1;
 
 		for (i = 0; i < 10; ++i) {
-			if (TrainY[j][i] == 1)
+			if (TestY[j][i] == 1)
 				realNum = i;
 			if (ans[i] > guessNum) {
 				guessNum = ans[i];
@@ -133,6 +137,7 @@ int main() {
 	}
 
 	printf("\n%f%", corrects / 100);
+	system("pause");
 
 	return 0;
 }

@@ -421,7 +421,7 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 	long long duration;
 
 	for (size_t l = 0; l < lvl; ++l) {
-		Shuffle(inputs, ys);
+		if (l != 0) Shuffle(inputs, ys);
 		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));
 			start = std::chrono::high_resolution_clock::now();
 			errors.push_back(.0f);
@@ -450,10 +450,10 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 			end = std::chrono::high_resolution_clock::now();
 			duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 			//printf("Function execution time: %zu miliseconds.", duration);
-			if (i % 50 == 0) {
+			if (i % 32 == 0) {
 				printf("ETA: ");
-				//printString(GetTimeFromMilliseconds((long long)(size - i - 1) * duration));
-				printf("%zu --- Batch : %zu/%zu\n", duration, i, size * lvl);
+				printString(GetTimeFromMilliseconds(((long long)((lvl - l) * size - i - 1)) * duration));
+				printf(" --- Batch : %zu/%zu\n", i + l * size, size * lvl);
 			}
 		}
 	}

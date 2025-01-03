@@ -1,11 +1,11 @@
 ﻿  Main.cpp
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(112,34): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(124,15): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(126,21): warning C4244: '=': conversion from '_Ty' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(126,21): warning C4244:         with
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(126,21): warning C4244:         [
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(126,21): warning C4244:             _Ty=float
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(126,21): warning C4244:         ]
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(127,14): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(135,9): warning C4778: 'printf' : unterminated format string '%'
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(116,34): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(128,15): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244: '=': conversion from '_Ty' to 'int', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:         with
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:         [
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:             _Ty=float
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:         ]
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(131,14): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(139,9): warning C4778: 'printf' : unterminated format string '%'
   NN.vcxproj -> C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\x64\Debug\NN.exe
