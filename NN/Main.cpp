@@ -92,7 +92,47 @@ int main() {
 
 	//nn.SaveWeights("weights_for_odd_even.txt");
 	}
-	
+	printf("Start Load\n");
+	vector<vector<float>> TrainX(10000, vector<float>(28*28));
+	vector<vector<float>> TrainY(10000, vector<float>(10, 0));
+
+	LoadX(TrainX, "Digits2/testX.txt");
+	LoadY(TrainY, "Digits2/testY.txt");
+
+	NeuralNetwork nn;
+	nn.Init(
+		{28*28, 128, 10},
+		ActivationFunction::ReLU,
+		ActivationFunction::SoftMax,
+		LossFunction::CrossEntropy,
+		Optimizer::Adam
+	);
+
+	printf("Start Train\n");
+	nn.Train(TrainX, TrainY, 3, 16, 0.01);
+
+	float corrects = .0f;
+	size_t i = 0, j = 0;
+	for (j = 0; j < 10000; ++j) {
+		nn.NeuralMultiplication(TrainX[j]);
+		
+		auto ans = nn.GetLastLayer();
+		int realNum = -1, guessNum = -1, guessI = -1;
+
+		for (i = 0; i < 10; ++i) {
+			if (TrainY[j][i] == 1)
+				realNum = i;
+			if (ans[i] > guessNum) {
+				guessNum = ans[i];
+				guessI = i;
+			}
+		}
+
+		if (guessI == realNum)
+			++corrects;
+	}
+
+	printf("\n%f%", corrects / 100);
 
 	return 0;
 }

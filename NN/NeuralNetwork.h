@@ -17,6 +17,9 @@ void plot(vector<float>);
 template <class T>
 void Shuffle(vector<T>&, vector<T>&);
 
+void LoadX(vector<vector<float>>& X, const char* sourcePath);
+void LoadY(vector<vector<float>>& Y, const char* sourcePath);
+
 enum ActivationFunction {Linear, ReLU, Sigmoid, SoftMax};
 enum LossFunction {CrossEntropy, SquaredError};
 enum Optimizer { Adam, GradientDescent };
@@ -46,7 +49,6 @@ public:
 	void PrintGradients(const char*, size_t);
 	void PrintInfo();
 	void NeuralMultiplication(vector<float>&);
-	void NeuralMultiplicationT(vector<float>&);
 	void Activation(size_t layer, ActivationFunction);
 	void BackProp(vector<float>& y, bool cfl = false);
 	void LoadWeights(const char*);
@@ -54,4 +56,5 @@ public:
 	void ResetGradients();
 	void Optimizing(float, float);
 	void Train(vector<vector<float>>&, vector<vector<float>>&, int, size_t, float);
+	vector<float> GetLastLayer();
 };
