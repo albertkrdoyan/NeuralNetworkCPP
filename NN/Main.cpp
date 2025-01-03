@@ -112,8 +112,9 @@ int main() {
 		Optimizer::Adam
 	);
 
+	nn.PrintInfo();
 	printf("Start Train\n");
-	nn.Train(TrainX, TrainY, 4, 32, 0.03);
+	nn.Train(TrainX, TrainY, 2, 16, 0.01);
 
 	float corrects = .0f;
 	size_t i = 0, j = 0;

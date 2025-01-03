@@ -1,11 +1,16 @@
-﻿  Main.cpp
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(116,34): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(128,15): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244: '=': conversion from '_Ty' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:         with
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:         [
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:             _Ty=float
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(130,21): warning C4244:         ]
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(131,14): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\Main.cpp(139,9): warning C4778: 'printf' : unterminated format string '%'
+﻿  NeuralNetwork.cpp
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(248,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(400,40): warning C4244: '-=': conversion from 'double' to '_Ty', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(400,40): warning C4244:         with
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(400,40): warning C4244:         [
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(400,40): warning C4244:             _Ty=float
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(400,40): warning C4244:         ]
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(521,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(565,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+      C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(565,12):
+      the template instantiation context (the oldest one first) is
+          C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(425,15):
+          see reference to function template instantiation 'void Shuffle<std::vector<float,std::allocator<float>>>(std::vector<std::vector<float,std::allocator<float>>,std::allocator<std::vector<float,std::allocator<float>>>> &,std::vector<std::vector<float,std::allocator<float>>,std::allocator<std::vector<float,std::allocator<float>>>> &)' being compiled
+  
+C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(548,1): warning C4172: returning address of local variable or temporary : result
   NN.vcxproj -> C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\x64\Debug\NN.exe

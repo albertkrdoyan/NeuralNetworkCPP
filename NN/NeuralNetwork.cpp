@@ -179,13 +179,14 @@ void NeuralNetwork::NeuralMultiplication(vector<float> &fln) {
 	if (fln.size() != layers[0].size()) return;
 
 	size_t i = 0, j = 0, k = 0;
+	float sum = 0.f;
 
 	layers[0] = std::ref(fln);
 
 	for (i = 1; i < layers_count; ++i) {
 		//#pragma omp parallel for shared(layers, weights, neurons_per_layer) private(j, k)
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
-			float sum = 0.f;
+			sum = 0.f;
 
 			//#pragma omp simd reduction(+:sum)
 			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k)
@@ -457,6 +458,8 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 			}
 		}
 	}
+
+	SaveWeights("Digits2/ws.txt");
 
 	plot(errors);
 }
