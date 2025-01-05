@@ -1,3 +1,4 @@
-﻿  NeuralNetwork.cpp
-C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\NN\NeuralNetwork.cpp(573,13): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  NN.vcxproj -> C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP\x64\Debug\NN.exe
+﻿  Main.cpp
+  addit.cpp
+  Создание кода...
+  NN.vcxproj -> C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe

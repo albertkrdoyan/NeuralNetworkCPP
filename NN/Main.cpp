@@ -103,20 +103,21 @@ int main() {
 	LoadX(TestX, "Digits2/testX.txt");
 	LoadY(TestY, "Digits2/testY.txt");*/
 
+	// init
 	NeuralNetwork nn;
 	if (nn.Init(
-			{ 28 * 28, 128, 10 },
+			{ 784, 128, 10 },
 			ActivationFunction::ReLU,
 			ActivationFunction::SoftMax,
 			LossFunction::CrossEntropy,
 			Optimizer::Adam
-		) == -1) {
-		printf("no init.\n");
-		return 0;
+		) == -1) {printf("no init.\n"); return 0;
 	}
-	printf("nn init succeed...\n");
 
-	return 0;/*
+
+
+	return 0;
+	/*
 	nn.PrintInfo();
 	printf("Start Train\n");
 	nn.Train(TrainX, TrainY, 2, 16, 0.01);
