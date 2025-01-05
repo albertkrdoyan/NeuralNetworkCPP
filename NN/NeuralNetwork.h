@@ -1,5 +1,30 @@
 #pragma once
-#include "addit.h"
+#include <vector>
+#include <random>
+#include <math.h>
+#include <thread>
+#include <omp.h>
+#include <fstream>
+#include <chrono>
+#include <time.h>
+#include <iomanip>
+
+using std::vector;
+using std::thread;
+using std::ifstream;
+using std::ofstream;
+
+double SigmoidFunction(double x);
+void SoftMaxFunction(double* layer, size_t len);
+int _strcpy(char* target, const char* source, int st);
+int _strcpy(char* target, long long num, int st);
+char* GetTimeFromMilliseconds(long long millisecond);
+void plot(vector<double> arr);
+template<class T> void Shuffle(T** v1, T** v2, size_t len);
+void LoadX(vector<vector<float>>& X, const char* sourcePath);
+void LoadY(vector<vector<float>>& Y, const char* sourcePath);
+double to_double(const char* str);
+void printString(const char* str);
 
 enum ActivationFunction {Linear, ReLU, Sigmoid, SoftMax};
 enum LossFunction {CrossEntropy, SquaredError};
@@ -32,10 +57,10 @@ public:
 	void PrintInfo(); //
 	void NeuralMultiplication(double* input, size_t fln_size);
 	void Activation(size_t layer, ActivationFunction);
-	void BackProp(vector<float>& y, bool cfl = false);
+	void BackProp(double* y, size_t y_size, bool cfl = false);
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
-	void Optimizing(float, float);
-	void Train(vector<vector<float>>&, vector<vector<float>>&, int, size_t, float);
-	vector<float> GetLastLayer();
+	void Optimizing(double, double);
+	void Train(double** trX, double** trY, size_t size1, size_t size2, size_t size3, int, size_t, double);
+	vector<double> GetLastLayer();
 };

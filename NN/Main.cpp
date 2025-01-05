@@ -2,6 +2,7 @@
 #include "NeuralNetwork.h"
 
 int main() {
+	srand(time(NULL));
 	{
 	/*NeuralNetwork square;
 

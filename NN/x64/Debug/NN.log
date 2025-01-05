@@ -1,4 +1,4 @@
 ﻿  Main.cpp
-  addit.cpp
-  Создание кода...
-  NN.vcxproj -> C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe
+C:\Users\User\source\repos\NeuralNetworkCPP\NN\Main.cpp(5,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+Main.obj : error LNK2019: ссылка на неразрешенный внешний символ "void __cdecl Shuffle<int>(int * *,int * *,unsigned __int64)" (??$Shuffle@H@@YAXPEAPEAH0_K@Z) в функции main.
+C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe : fatal error LNK1120: неразрешенных внешних элементов: 1

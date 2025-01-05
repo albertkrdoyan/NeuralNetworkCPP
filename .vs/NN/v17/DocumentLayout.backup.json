@@ -3,24 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\addit.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\addit.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\addit.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\addit.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,67 +30,41 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "addit.cpp",
-              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\addit.cpp",
-              "RelativeDocumentMoniker": "NN\\addit.cpp",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\addit.cpp",
-              "RelativeToolTip": "NN\\addit.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMkAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-01-05T13:38:11.217Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "addit.h",
-              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\addit.h",
-              "RelativeDocumentMoniker": "NN\\addit.h",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\addit.h",
-              "RelativeToolTip": "NN\\addit.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-01-05T13:35:10.219Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "NeuralNetwork.h",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h",
+              "RelativeDocumentMoniker": "NN\\NeuralNetwork.h",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h",
+              "RelativeToolTip": "NN\\NeuralNetwork.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-01-05T16:44:23.068Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "Main.cpp",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\Main.cpp",
               "RelativeDocumentMoniker": "NN\\Main.cpp",
               "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\Main.cpp",
               "RelativeToolTip": "NN\\Main.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGwAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAYwHUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-05T13:28:14.647Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "NeuralNetwork.cpp",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.cpp",
               "RelativeDocumentMoniker": "NN\\NeuralNetwork.cpp",
               "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.cpp",
               "RelativeToolTip": "NN\\NeuralNetwork.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEICAAAAAAAAAAAIwEwCAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-03T22:34:51.328Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "NeuralNetwork.h",
-              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h",
-              "RelativeDocumentMoniker": "NN\\NeuralNetwork.h",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h",
-              "RelativeToolTip": "NN\\NeuralNetwork.h",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAsAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-01-01T15:41:53.195Z",
               "EditorCaption": ""
             }
           ]

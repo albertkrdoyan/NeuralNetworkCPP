@@ -21,15 +21,9 @@
     <ClCompile Include="NeuralNetwork.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="addit.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NeuralNetwork.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="addit.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

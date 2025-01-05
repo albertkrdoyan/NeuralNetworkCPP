@@ -159,7 +159,7 @@ void NeuralNetwork::PrintInfo()
 {
 	printf("Threads count: %zu\nLayers count %zu: ", threads_count, layers_count);
 	for (size_t i = 0; i < layers_count; ++i)
-		printf("%d, ", neurons_per_layer[i]);
+		printf("%zu, ", neurons_per_layer[i]);
 	printf("\nMain activation function: ");
 	switch (act)
 	{
@@ -329,75 +329,15 @@ void NeuralNetwork::SaveWeights(const char* path)
 		printf("Not Open\n");
 	}
 }
-/*
-void NeuralNetwork::BackProp(vector<float>& y, bool calculate_first_layer)
-{
-	if (y.size() != layers.back().size()) return;
-	
-	if (loss == LossFunction::CrossEntropy && llact == ActivationFunction::SoftMax) {
-		for (size_t i = 0; i < neurons_per_layer.back(); ++i) {
-			// dE / dz
-			glayers.back()[i] = layers.back()[i] - y[i];
-		}
-	}
-	else {
-		for (size_t i = 0; i < neurons_per_layer.back(); ++i) {
-			// dE / dz
-			if (loss == LossFunction::SquaredError)
-				glayers.back()[i] = 2 * (layers.back()[i] - y[i]);
 
-			if (llact == ActivationFunction::ReLU)
-				glayers.back()[i] *= (layers.back()[i] > 0 ? 1 : 0);
-			else if (llact == ActivationFunction::Sigmoid)
-				glayers.back()[i] *= layers.back()[i] * (1 - layers.back()[i]);
-		}
-	}
-
-	size_t j = 0, i = 0;
-
-	for (int n = layers_count - 2; n >= 0; --n) {
-		for (i = 0; i < weights[n].size(); ++i) {
-			gradients[n][i].back() += glayers[n + 1][i]; // de/db
-			
-			for (j = 0; j < weights[n][0].size() - 1; ++j) {
-				if (i == 0) glayers[n][j] = .0f;
-
-				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
-				if (n != 0 || calculate_first_layer)
-					glayers[n][j] += glayers[n + 1][i] * weights[n][i][j]; // de/da
-			}
-		}
-		
-		if (n != 0 || calculate_first_layer) {
-			switch (act) // de/dz(l - 1)
-			{
-			case ReLU:
-				//#pragma omp parallel for
-				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
-					glayers[n][i] *= (layers[n][i] > 0 ? 1 : 0);
-				break;
-			case Sigmoid:
-				//#pragma omp parallel for
-				for (i = 0; n != 0 && i < glayers[n].size(); ++i)
-					glayers[n][i] *= layers[n][i] * (1 - layers[n][i]);
-				break;
-			case SoftMax:
-				break;
-			default:
-				break;
-			}
-		}
-	}
-}
-
-void NeuralNetwork::Optimizing(float alpha, float batch)
+void NeuralNetwork::Optimizing(double alpha, double batch)
 {
 	size_t n = 0, i = 0, j = 0;
 
 	if (opt == GradientDescent) {
-		for (n = 0; n < weights.size(); ++n) {
-			for (i = 0; i < weights[n].size(); ++i) {
-				for (j = 0; j < weights[n][i].size(); ++j) {
+		for (n = 0; n < layers_count - 1; ++n) {
+			for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
+				for (j = 0; j < neurons_per_layer[n] + 1; ++j) {
 					weights[n][i][j] -= alpha * gradients[n][i][j] / batch;
 					gradients[n][i][j] = .0f;
 				}
@@ -405,10 +345,10 @@ void NeuralNetwork::Optimizing(float alpha, float batch)
 		}
 	}
 	else {
-		float m1H = 0, m2H = 0, betta1toTpower = 1.0f, betta2toTpower = 1.0f;
-		for (n = 0; n < weights.size(); ++n) {
-			for (i = 0; i < weights[n].size(); ++i) {
-				for (j = 0; j < weights[n][i].size(); ++j) {
+		double m1H = 0, m2H = 0, betta1toTpower = 1.0f, betta2toTpower = 1.0f;
+		for (n = 0; n < layers_count - 1; ++n) {
+			for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
+				for (j = 0; j < neurons_per_layer[n] + 1; ++j) {
 					moment1[n][i][j] = betta1 * moment1[n][i][j] + (1 - betta1) * gradients[n][i][j];
 					moment2[n][i][j] = betta2 * moment2[n][i][j] + (1 - betta2) * gradients[n][i][j] * gradients[n][i][j];
 
@@ -426,36 +366,95 @@ void NeuralNetwork::Optimizing(float alpha, float batch)
 	//ResetGradients();
 }
 
-void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& ys, int lvl, size_t batch, float alpha)
+void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_layer)
+{
+	if (y_size != neurons_per_layer[layers_count - 1]) return;
+
+	if (loss == LossFunction::CrossEntropy && llact == ActivationFunction::SoftMax) {
+		for (size_t i = 0; i < neurons_per_layer[layers_count - 1]; ++i) {
+			// dE / dz
+			glayers[layers_count - 1][i] = layers[layers_count - 1][i] - y[i];
+		}
+	}
+	else {
+		for (size_t i = 0; i < neurons_per_layer[layers_count - 1]; ++i) {
+			// dE / dz
+			if (loss == LossFunction::SquaredError)
+				glayers[layers_count - 1][i] = 2 * (layers[layers_count - 1][i] - y[i]);
+
+			if (llact == ActivationFunction::ReLU)
+				glayers[layers_count - 1][i] *= (layers[layers_count - 1][i] > 0 ? 1 : 0);
+			else if (llact == ActivationFunction::Sigmoid)
+				glayers[layers_count - 1][i] *= layers[layers_count - 1][i] * (1 - layers[layers_count - 1][i]);
+		}
+	}
+
+	size_t j = 0, i = 0;
+
+	for (int n = (int)layers_count - 2; n >= 0; --n) {
+		for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
+			for (j = 0; j < neurons_per_layer[n]; ++j) {
+				if (i == 0) glayers[n][j] = .0f;
+
+				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
+				if (n != 0 || calculate_first_layer)
+					glayers[n][j] += glayers[n + 1][i] * weights[n][i][j]; // de/da
+			}
+			gradients[n][i][j] += glayers[n + 1][i]; // de/db
+		}
+
+		if (n != 0 || calculate_first_layer) {
+			switch (act) // de/dz(l - 1)
+			{
+			case ReLU:
+				//#pragma omp parallel for
+				for (i = 0; n != 0 && i < neurons_per_layer[n]; ++i)
+					glayers[n][i] *= (layers[n][i] > 0 ? 1 : 0);
+				break;
+			case Sigmoid:
+				//#pragma omp parallel for
+				for (i = 0; n != 0 && i < neurons_per_layer[n]; ++i)
+					glayers[n][i] *= layers[n][i] * (1 - layers[n][i]);
+				break;
+			case SoftMax:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
+void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, int lvl, size_t batch, double alpha)
 {
 	errors.clear();
-	size_t size = (inputs.size() / batch), btch = 0, err = 0;
+	size_t size = (train_size / batch), btch = 0, err = 0;
 	errors.reserve(size);
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
 
 	for (size_t l = 0; l < lvl; ++l) {
-		if (l != 0) Shuffle(inputs, ys);
+		if (l != 0) Shuffle(inputs, ys, train_size);
 		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));
 			start = std::chrono::high_resolution_clock::now();
 			errors.push_back(.0f);
 
 			//#pragma omp parallel for shared(layers, weights, neurons_per_layer, errors, glayers, gradients) private(btch)
-			for (btch = i * batch; btch < (i == size - 1 ? inputs.size() : (i + 1) * batch); ++btch) {
-				NeuralMultiplication(inputs[btch]);
+			for (btch = i * batch; btch < (i == size - 1 ? train_size : (i + 1) * batch); ++btch) {
+				NeuralMultiplication(inputs[btch], input_length);
 
 				if (loss == SquaredError) {
-					for (err = 0; err < ys[btch].size(); ++err) {
-						errors.back() += (float)pow(ys[btch][err] - layers.back()[err], 2);
+					for (err = 0; err < output_length; ++err) {
+						errors.back() += (float)pow(ys[btch][err] - layers[layers_count - 1][err], 2);
 					}
 				}
 				else if (loss == CrossEntropy) {
-					for (err = 0; err < ys[btch].size(); ++err) {
-						errors.back() += (ys[btch][err] == 0 ? 0 : -log(layers.back()[err]));
+					for (err = 0; err < output_length; ++err) {
+						errors.back() += (ys[btch][err] == 0 ? 0 : -log(layers[layers_count - 1][err]));
 					}
 				}
 
-				BackProp(ys[btch]);
+				BackProp(ys[btch], output_length);
 			}
 			errors.back() /= batch;
 
@@ -466,7 +465,9 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 			//printf("Function execution time: %zu miliseconds.", duration);
 			if (i % 32 == 0) {
 				printf("ETA: ");
-				printString(GetTimeFromMilliseconds(((long long)((lvl - l) * size - i - 1)) * duration));
+				char* c = GetTimeFromMilliseconds(((long long)((lvl - l) * size - i - 1)) * duration);
+				printString(c);
+				delete[] c;
 				printf(" --- Batch : %zu/%zu\n", i + l * size, size * lvl);
 			}
 		}
@@ -477,8 +478,207 @@ void NeuralNetwork::Train(vector<vector<float>>& inputs, vector<vector<float>>& 
 	plot(errors);
 }
 
+/*
 vector<float> NeuralNetwork::GetLastLayer()
 {
 	return layers.back();
 }
 */
+
+double SigmoidFunction(double x) {
+	return 1 / (1 + exp(-x));
+}
+
+void SoftMaxFunction(double* layer, size_t len) {
+	// softmax function by ChatGPT
+	size_t i;
+	double m, sum, constant;
+
+	m = -INFINITY;
+	for (i = 0; i < len; ++i) {
+		if (m < layer[i]) {
+			m = layer[i];
+		}
+	}
+
+	sum = 0.0f;
+	for (i = 0; i < len; ++i) {
+		sum += exp(layer[i] - m);
+	}
+
+	constant = m + log(sum);
+	for (i = 0; i < len; ++i) {
+		layer[i] = exp(layer[i] - constant);
+	}
+}
+
+int _strcpy(char* target, const char* source, int st) {
+	int i = 0;
+
+	for (i; source[i] != '\0'; ++i)
+		target[st + i] = source[i];
+
+	target[st + i] = '\0';
+
+	return st + i;
+}
+
+int _strcpy(char* target, long long num, int st) {
+	int i = 0;
+
+	vector<char> line;
+
+	do {
+		line.push_back(num % 10 + '0');
+		num -= num % 10;
+		num /= 10;
+	} while (num != 0);
+
+	for (int j = (int)line.size() - 1; j > -1; --j)
+		target[st + i++] = line[j];
+
+	target[st + i] = '\0';
+
+	return st + i;
+}
+
+char* GetTimeFromMilliseconds(long long millisecond)
+{
+	long long seconds = millisecond / 1000;
+	millisecond %= 1000;
+	long long minutes = seconds / 60;
+	seconds %= 60;
+	long long hours = minutes / 60;
+	minutes %= 60;
+
+	char* result = new char[128] {};
+	int i = 0;
+	i = _strcpy(result, "Hours: ", i);
+	i = _strcpy(result, hours, i);
+	i = _strcpy(result, ", minutes: ", i);
+	i = _strcpy(result, minutes, i);
+	i = _strcpy(result, ", seconds: ", i);
+	i = _strcpy(result, seconds, i);
+	i = _strcpy(result, ", milliseconds: ", i);
+	i = _strcpy(result, millisecond, i);
+	return result;
+}
+
+void plot(vector<double> arr) {
+	ofstream wr;
+	wr.open("plot.txt");
+
+	for (size_t i = 0; i < arr.size(); ++i)
+		wr << arr[i] << '\n';
+
+	wr.close();
+
+	system("plot.py");
+}
+
+template<class T> void Shuffle(T** v1, T** v2, size_t len) {
+	for (size_t i = 0; i < len - 1; ++i) {
+		size_t j = i + rand() % (len - i);
+
+		std::swap(v1[i], v1[j]);
+		std::swap(v2[i], v2[j]);
+	}
+}
+
+void LoadX(vector<vector<float>>& X, const char* sourcePath) {
+	ifstream read;
+	read.open(sourcePath);
+	int i = 0, j = 0;
+
+	if (read.is_open()) {
+		char _c = '\0';
+		float num[3] = { 0, 0, 0 };
+		int _i = 0;
+
+		while (true) {
+			_c = read.get();
+
+			if (_c == -1 || _c == ' ') {
+				if (num[2] == 0) {
+					X[i][j] = num[0] / 255;
+					j++;
+					if (j == X[i].size()) {
+						j = 0;
+						i++;
+					}
+				}
+				else {
+					while (num[0]-- != 0) {
+						X[i][j] = num[1] / 255;
+						j++;
+						if (j == X[i].size()) {
+							j = 0;
+							i++;
+						}
+					}
+				}
+
+				if (_c == -1)
+					break;
+
+				num[0] = num[1] = num[2] = 0;
+				_i = 0;
+			}
+			else if (_c == ':') {
+				_i = 1;
+				num[2] = 1;
+			}
+			else {
+				num[_i] *= 10;
+				num[_i] += _c - '0';
+			}
+		}
+
+		read.close();
+	}
+	else
+		printf("File can't be load... filepath<<%s>>\n", sourcePath);
+}
+
+void LoadY(vector<vector<float>>& Y, const char* sourcePath) {
+	ifstream read;
+	read.open(sourcePath);
+	int i = 0;
+
+	if (read.is_open()) {
+		char _c = '\0';
+
+		while ((_c = read.get()) != -1)
+			Y[i++][(size_t)(_c - '0')] = 1.0f;
+
+		read.close();
+	}
+	else
+		printf("File can't be load... filepath<<%s>>\n", sourcePath);
+}
+
+double to_double(const char* str) {
+	double res = 0;
+	size_t i = 0;
+
+	for (; str[i] != '.' && str[i] != '\0'; ++i) {
+		res *= 10.0f;
+		res += str[i] - '0';
+	}
+	if (str[i] == '\0')
+		return res;
+	++i;
+
+	double under = .0f;
+	double dec = 1.0f;
+	for (; str[i] != '\0'; ++i) {
+		dec /= 10.0f;
+		under += dec * (str[i] - '0');
+	}
+
+	return res + under;
+}
+void printString(const char* str) {
+	for (size_t i = 0; str[i] != '\0'; ++i)
+		printf("%c", str[i]);
+}
