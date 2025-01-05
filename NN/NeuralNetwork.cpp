@@ -45,13 +45,16 @@ NeuralNetwork::~NeuralNetwork()
 	delete[] gradients;
 	delete[] moment1;
 	delete[] moment2;
+	delete[] neurons_per_layer;
 }
 
 int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
 	if (npl.size() == 0) return -1;
 
-	neurons_per_layer = npl;
 	layers_count = npl.size();
+	neurons_per_layer = new int[layers_count];
+	for (size_t i = 0; i < layers_count; ++i)
+		neurons_per_layer[i] = (int)npl[i];
 
 	layers = new float* [layers_count];
 	glayers = new float* [layers_count];
@@ -159,8 +162,8 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 void NeuralNetwork::PrintInfo()
 {
 	printf("Threads count: %zu\nLayers count %zu: ", threads_count, layers_count);
-	for (const auto& ns : neurons_per_layer)
-		printf("%zu, ", ns);
+	for (size_t i = 0; i < layers_count; ++i)
+		printf("%d, ", neurons_per_layer[i]);
 	printf("\nMain activation function: ");
 	switch (act)
 	{

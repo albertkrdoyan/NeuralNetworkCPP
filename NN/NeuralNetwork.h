@@ -28,7 +28,7 @@ class NeuralNetwork
 {
 private:
 	size_t layers_count, threads_count;
-	vector<size_t> neurons_per_layer;
+	int* neurons_per_layer;
 	float** layers;
 	float** glayers;	
 	float*** weights;
