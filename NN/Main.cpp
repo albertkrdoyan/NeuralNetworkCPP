@@ -92,7 +92,7 @@ int main() {
 
 	//nn.SaveWeights("weights_for_odd_even.txt");
 	}
-	printf("Start Load\n");
+	/*printf("Start Load\n");
 	vector<vector<float>> TrainX(60000, vector<float>(28 * 28));
 	vector<vector<float>> TrainY(60000, vector<float>(10, 0));
 	vector<vector<float>> TestX(10000, vector<float>(28 * 28));
@@ -101,17 +101,22 @@ int main() {
 	LoadX(TrainX, "Digits2/trainX.txt");
 	LoadY(TrainY, "Digits2/trainY.txt");
 	LoadX(TestX, "Digits2/testX.txt");
-	LoadY(TestY, "Digits2/testY.txt");
+	LoadY(TestY, "Digits2/testY.txt");*/
 
 	NeuralNetwork nn;
-	nn.Init(
-		{28*28, 128, 10},
-		ActivationFunction::ReLU,
-		ActivationFunction::SoftMax,
-		LossFunction::CrossEntropy,
-		Optimizer::Adam
-	);
+	if (nn.Init(
+			{ 28 * 28, 128, 10 },
+			ActivationFunction::ReLU,
+			ActivationFunction::SoftMax,
+			LossFunction::CrossEntropy,
+			Optimizer::Adam
+		) == -1) {
+		printf("no init.\n");
+		return 0;
+	}
+	printf("nn init succeed...\n");
 
+	return 0;/*
 	nn.PrintInfo();
 	printf("Start Train\n");
 	nn.Train(TrainX, TrainY, 2, 16, 0.01);
@@ -128,7 +133,7 @@ int main() {
 			if (TestY[j][i] == 1)
 				realNum = i;
 			if (ans[i] > guessNum) {
-				guessNum = ans[i];
+				guessNum = (int)ans[i];
 				guessI = i;
 			}
 		}
@@ -140,5 +145,5 @@ int main() {
 	printf("\n%f%", corrects / 100);
 	system("pause");
 
-	return 0;
+	return 0;*/
 }

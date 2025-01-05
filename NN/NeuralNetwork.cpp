@@ -18,38 +18,87 @@ NeuralNetwork::NeuralNetwork() {
 	this->opt = GradientDescent;
 }
 
-int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
-	neurons_per_layer = npl;
-	layers_count = neurons_per_layer.size();
-
-	layers = vector<vector<float>>(layers_count);
-	glayers = vector<vector<float>>(layers_count);
+NeuralNetwork::~NeuralNetwork()
+{
+	if (layers_count == 0) return;
 
 	for (size_t i = 0; i < layers_count; ++i) {
-		layers[i] = vector<float>(neurons_per_layer[i], 0);
-		glayers[i] = vector<float>(neurons_per_layer[i], 0);
+		delete[] layers[i];
+		delete[] glayers[i];
 	}
-
-	weights = vector<vector<vector<float>>>(layers_count - 1);
-	gradients = vector<vector<vector<float>>>(layers_count - 1);
-	moment1 = vector<vector<vector<float>>>(layers_count - 1);
-	moment2 = vector<vector<vector<float>>>(layers_count - 1);
+	delete[] layers;
+	delete[] glayers;
 
 	for (size_t i = 0; i < layers_count - 1; ++i) {
-		weights[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
-		gradients[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
-		moment1[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
-		moment2[i] = vector<vector<float>>(neurons_per_layer[i + 1], vector<float>(neurons_per_layer[i] + 1, 0.f));
+		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
+			delete[] weights[i][j];
+			delete[] gradients[i][j];
+			delete[] moment1[i][j];
+			delete[] moment2[i][j];
+		}
+		delete[] weights[i];
+		delete[] gradients[i];
+		delete[] moment1[i];
+		delete[] moment2[i];
 	}
+	delete[] weights;
+	delete[] gradients;
+	delete[] moment1;
+	delete[] moment2;
+}
+
+int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
+	if (npl.size() == 0) return -1;
+
+	neurons_per_layer = npl;
+	layers_count = npl.size();
+
+	layers = new float* [layers_count];
+	glayers = new float* [layers_count];
+
+	if (layers == nullptr || glayers == nullptr) return -1;
+
+	for (size_t i = 0; i < layers_count; ++i) {
+		layers[i] = new float[neurons_per_layer[i]];
+		glayers[i] = new float[neurons_per_layer[i]];
+
+		if (layers[i] == nullptr || glayers[i] == nullptr) return -1;
+
+		for (size_t j = 0; j < neurons_per_layer[i]; ++j)
+			glayers[i][j] = layers[i][j] = .0f;
+	}
+
+	weights = new float** [layers_count - 1];
+	gradients = new float** [layers_count - 1];
+	moment1 = new float** [layers_count - 1];
+	moment2 = new float** [layers_count - 1];
+
+	if (weights == nullptr || gradients == nullptr || moment1 == nullptr || moment2 == nullptr) return -1;
 
 	std::random_device rd; // Seed for the random number engine
 	std::mt19937 gen(rd()); // Mersenne Twister random number engine
 	std::uniform_real_distribution<> dist(0.0, 1.0); // Range [0, 1)
 
-	for (auto& weight : weights) {
-		for (auto& line : weight) {
-			for (auto& w : line)
-				w = static_cast<float>(dist(gen));
+	for (size_t i = 0; i < layers_count - 1; ++i) {
+		weights[i] = new float* [neurons_per_layer[i + 1]];
+		gradients[i] = new float* [neurons_per_layer[i + 1]];
+		moment1[i] = new float* [neurons_per_layer[i + 1]];
+		moment2[i] = new float* [neurons_per_layer[i + 1]];
+
+		if (weights[i] == nullptr || gradients[i] == nullptr || moment1[i] == nullptr || moment2[i] == nullptr) return -1;
+
+		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
+			weights[i][j] = new float[neurons_per_layer[i] + 1];
+			gradients[i][j] = new float[neurons_per_layer[i] + 1];
+			moment1[i][j] = new float[neurons_per_layer[i] + 1];
+			moment2[i][j] = new float[neurons_per_layer[i] + 1];
+
+			if (weights[i][j] == nullptr || gradients[i][j] == nullptr || moment1[i][j] == nullptr || moment2[i][j] == nullptr) return -1;
+
+			for (size_t k = 0; k < neurons_per_layer[i] + 1; ++k) {
+				weights[i][j][k] = static_cast<float>(dist(gen));
+				gradients[i][j][k] = moment1[i][j][k] = moment2[i][j][k] = .0f;
+			}
 		}
 	}
 
@@ -64,8 +113,8 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 void NeuralNetwork::PrintLayers(size_t layer) {
 	for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
 		printf("Layer [%zu]: ", i);
-		for (const auto& neuron : layers[i])
-			printf("%.10f ", neuron);
+		for (size_t j = 0; j < neurons_per_layer[i]; ++j)
+			printf("%.10f ", layers[i][j]);
 		printf("\n");
 	}
 }
@@ -73,10 +122,10 @@ void NeuralNetwork::PrintLayers(size_t layer) {
 void NeuralNetwork::PrintWeights() {
 	for (size_t i = 0; i < layers_count - 1; ++i) {
 		printf("Weight [%zu]\n[\n", i);
-		for (const auto& line : weights[i]) {
+		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
 			printf("\t[");
-			for (const auto& weight : line)
-				printf(" %.10f", weight);
+			for (size_t k = 0; k < neurons_per_layer[i] + 1; ++k)
+				printf(" %.10f", weights[i][j][k]);
 			printf(" ]\n");
 		}
 		printf("]\n");
@@ -88,18 +137,18 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 	if (printwhat == "ALL" || printwhat == "GLAYER") {
 		for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
 			printf("GLayer [%zu]: ", i);
-			for (const auto& neuron : glayers[i])
-				printf("%.10f ", neuron);
+			for (size_t j = 0; j < neurons_per_layer[i]; ++j)
+				printf("%.10f ", glayers[i][j]);
 			printf("\n");
 		}
 	}
 	if (printwhat == "ALL" || printwhat == "GRAD") {
 		for (size_t i = 0; i < layers_count - 1; ++i) {
 			printf("Gradients [%zu]\n[\n", i);
-			for (const auto& line : gradients[i]) {
+			for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
 				printf("\t[");
-				for (const auto& weight : line)
-					printf(" %.10f", weight);
+				for (size_t k = 0; k < neurons_per_layer[i] + 1; ++k)
+					printf(" %.10f", gradients[i][j][k]);
 				printf(" ]\n");
 			}
 			printf("]\n");
@@ -174,7 +223,7 @@ void NeuralNetwork::PrintInfo()
 	}
 	printf("\n");
 }
-
+/*
 void NeuralNetwork::NeuralMultiplication(vector<float> &fln) {
 	if (fln.size() != layers[0].size()) return;
 
@@ -468,7 +517,7 @@ vector<float> NeuralNetwork::GetLastLayer()
 {
 	return layers.back();
 }
-
+*/
 float SigmoidFunction(float x) {
 	return 1 / (1 + exp(-x));
 }
