@@ -340,7 +340,7 @@ void NeuralNetwork::Optimizing(double alpha, double batch)
 			for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
 				for (j = 0; j < neurons_per_layer[n] + 1; ++j) {
 					weights[n][i][j] -= alpha * gradients[n][i][j] / batch;
-					gradients[n][i][j] = .0f;
+					gradients[n][i][j] = 0;
 				}
 			}
 		}
@@ -357,7 +357,7 @@ void NeuralNetwork::Optimizing(double alpha, double batch)
 					m2H = moment2[n][i][j] / (1 - (betta2toTpower *= betta2));
 
 					weights[n][i][j] -= (alpha * m1H) / (sqrt(m2H) + 0.00000001);
-					gradients[n][i][j] = .0f;
+					gradients[n][i][j] = 0;
 				}
 			}
 		}

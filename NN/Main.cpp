@@ -30,7 +30,7 @@ int main() {
 	// init
 	NeuralNetwork nn;
 	if (nn.Init(
-			{ img_len, 128, 10 },
+			{ 3, 5, 2 },
 			ActivationFunction::ReLU,
 			ActivationFunction::SoftMax,
 			LossFunction::CrossEntropy,
@@ -39,9 +39,24 @@ int main() {
 	}
 
 	printf("Train\n");
-	nn.Train(tr_img, tr_img_info, tr_len, img_len, 10, 5, 32, 0.03);
+	// nn.Train(tr_img, tr_img_info, tr_len, img_len, 10, 5, 32, 0.03);
+	nn.LoadWeights("C:\\Users\\alber\\source\\repos\\Neural Network\\weis.dat");
 
-	double* d = new double[10];
+	double* inp = new double[3] {.5, .8, .4};
+	double* out = new double[2] {1, 0};
+
+	nn.NeuralMultiplication(inp, 3);
+	nn.BackProp(out, 2);
+
+	nn.PrintLayers(0);
+	nn.PrintWeights();
+	nn.PrintGradients("ALL", 0);
+
+	delete[] inp, out;
+
+
+
+	/*double* d = new double[10];
 	double count = 0, summ = 0;
 	for (int i = 0; i < tst_len; ++i) {
 		nn.NeuralMultiplication(tst_img[i], img_len);
@@ -64,7 +79,7 @@ int main() {
 			count++;
 	}
 
-	std::cout << '\n' << "%% " << 100 * count / tst_len << '\n';
+	std::cout << '\n' << "%% " << 100 * count / tst_len << '\n';*/
 
 	for (int i = 0; i < tr_len; ++i)
 		delete[] tr_img[i];
