@@ -18,13 +18,6 @@ NeuralNetwork::~NeuralNetwork()
 {
 	if (layers_count == 0) return;
 
-	for (size_t i = 0; i < layers_count; ++i) {
-		delete[] layers[i];
-		delete[] glayers[i];
-	}
-	delete[] layers;
-	delete[] glayers;
-
 	for (size_t i = 0; i < layers_count - 1; ++i) {
 		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
 			delete[] weights[i][j];
@@ -42,6 +35,13 @@ NeuralNetwork::~NeuralNetwork()
 	delete[] moment1;
 	delete[] moment2;
 	delete[] neurons_per_layer;
+
+	for (size_t i = 0; i < layers_count; ++i) {
+		delete[] layers[i];
+		delete[] glayers[i];
+	}
+	delete[] layers;
+	delete[] glayers;
 }
 
 int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
@@ -227,21 +227,22 @@ void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size) {
 	if ((int)fln_size != neurons_per_layer[0]) return;
 
 	size_t i = 0, j = 0, k = 0;
-	double sum = 0.f;
+	//double sum = 0.f;
 
-	layers[0] = std::ref(fln);
+	for (size_t i = 0; i < fln_size; ++i)
+		layers[0][i] = fln[i];
 
 	for (i = 1; i < layers_count; ++i) {
 		//#pragma omp parallel for shared(layers, weights, neurons_per_layer) private(j, k)
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
-			sum = 0.f;
+			layers[i][j] = 0.f;
 
 			//#pragma omp simd reduction(+:sum)
 			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k)
-				sum += layers[i - 1][k] * weights[i - 1][j][k];
+				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
 
-			sum += weights[i - 1][j][neurons_per_layer[i - 1]];
-			layers[i][j] = sum;
+			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
+			//layers[i][j] = sum;
 		}
 
 		Activation(i, (i != layers_count - 1 ? act : llact));
@@ -258,10 +259,10 @@ void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
 		break;
 	case Sigmoid:
 		for (i = 0; i < neurons_per_layer[layer]; ++i)
-			layers[layer][i] = SigmoidFunction(layers[layer][i]);
+			layers[layer][i] = functions.SigmoidFunction(layers[layer][i]);
 		break;
 	case SoftMax:
-		SoftMaxFunction(layers[layer], neurons_per_layer[layer]);
+		functions.SoftMaxFunction(layers[layer], neurons_per_layer[layer]);
 		break;
 	default:
 		break;
@@ -285,7 +286,7 @@ void NeuralNetwork::LoadWeights(const char* path)
 
 			if (_char == ' ' || _char == -1 || _char == '\r' || _char == '\n') {
 				buff[ind] = '\0';
-				weights[n][i][j++] = to_double(buff);
+				weights[n][i][j++] = functions.to_double(buff);
 				ind = 0;
 				if (j == neurons_per_layer[n] + 1) {
 					j = 0;
@@ -393,9 +394,10 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 
 	for (int n = (int)layers_count - 2; n >= 0; --n) {
 		for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
-			for (j = 0; j < neurons_per_layer[n]; ++j) {
-				if (i == 0) glayers[n][j] = .0f;
+			for (j = 0; j < neurons_per_layer[n]; ++j)
+				glayers[n][j] = 0;
 
+			for (j = 0; j < neurons_per_layer[n]; ++j) {
 				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
 				if (n != 0 || calculate_first_layer)
 					glayers[n][j] += glayers[n + 1][i] * weights[n][i][j]; // de/da
@@ -433,11 +435,11 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
 
+	start = std::chrono::high_resolution_clock::now();
 	for (size_t l = 0; l < lvl; ++l) {
-		if (l != 0) Shuffle(inputs, ys, train_size);
-		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));
-			start = std::chrono::high_resolution_clock::now();
-			errors.push_back(.0f);
+		if (l != 0) functions.Shuffle(inputs, ys, train_size);
+		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));			
+			errors.push_back(0);
 
 			//#pragma omp parallel for shared(layers, weights, neurons_per_layer, errors, glayers, gradients) private(btch)
 			for (btch = i * batch; btch < (i == size - 1 ? train_size : (i + 1) * batch); ++btch) {
@@ -458,38 +460,30 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 			}
 			errors.back() /= batch;
 
-			Optimizing(alpha, (float)batch);
-
-			end = std::chrono::high_resolution_clock::now();
-			duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-			//printf("Function execution time: %zu miliseconds.", duration);
-			if (i % 32 == 0) {
-				printf("ETA: ");
-				char* c = GetTimeFromMilliseconds(((long long)((lvl - l) * size - i - 1)) * duration);
-				printString(c);
-				delete[] c;
-				printf(" --- Batch : %zu/%zu\n", i + l * size, size * lvl);
-			}
+			Optimizing(alpha, (double)batch);
 		}
+
+		end = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+		printf(" --- %zu Batch :%zu/%d\n", duration / 1000, l, lvl);
+		start = std::chrono::high_resolution_clock::now();
 	}
 
-	SaveWeights("Digits2/ws.txt");
+	//SaveWeights("Digits2/ws.txt");
 
-	plot(errors);
+	functions.plot(errors);
 }
 
-/*
-vector<float> NeuralNetwork::GetLastLayer()
+double* NeuralNetwork::GetLastLayer()
 {
-	return layers.back();
+	return layers[layers_count - 1];
 }
-*/
 
-double SigmoidFunction(double x) {
+double addit::SigmoidFunction(double x) {
 	return 1 / (1 + exp(-x));
 }
 
-void SoftMaxFunction(double* layer, size_t len) {
+void addit::SoftMaxFunction(double* layer, size_t len) {
 	// softmax function by ChatGPT
 	size_t i;
 	double m, sum, constant;
@@ -512,7 +506,7 @@ void SoftMaxFunction(double* layer, size_t len) {
 	}
 }
 
-int _strcpy(char* target, const char* source, int st) {
+int addit::_strcpy(char* target, const char* source, int st) {
 	int i = 0;
 
 	for (i; source[i] != '\0'; ++i)
@@ -523,7 +517,7 @@ int _strcpy(char* target, const char* source, int st) {
 	return st + i;
 }
 
-int _strcpy(char* target, long long num, int st) {
+int addit::_strcpy(char* target, long long num, int st) {
 	int i = 0;
 
 	vector<char> line;
@@ -542,7 +536,7 @@ int _strcpy(char* target, long long num, int st) {
 	return st + i;
 }
 
-char* GetTimeFromMilliseconds(long long millisecond)
+char* addit::GetTimeFromMilliseconds(long long millisecond)
 {
 	long long seconds = millisecond / 1000;
 	millisecond %= 1000;
@@ -564,7 +558,7 @@ char* GetTimeFromMilliseconds(long long millisecond)
 	return result;
 }
 
-void plot(vector<double> arr) {
+void addit::plot(vector<double> arr) {
 	ofstream wr;
 	wr.open("plot.txt");
 
@@ -576,7 +570,7 @@ void plot(vector<double> arr) {
 	system("plot.py");
 }
 
-template<class T> void Shuffle(T** v1, T** v2, size_t len) {
+template<class T> void addit::Shuffle(T** v1, T** v2, size_t len) {
 	for (size_t i = 0; i < len - 1; ++i) {
 		size_t j = i + rand() % (len - i);
 
@@ -585,14 +579,14 @@ template<class T> void Shuffle(T** v1, T** v2, size_t len) {
 	}
 }
 
-void LoadX(vector<vector<float>>& X, const char* sourcePath) {
+void addit::LoadX(const char* sourcePath, int len, int slen, double** X) {
 	ifstream read;
 	read.open(sourcePath);
 	int i = 0, j = 0;
 
 	if (read.is_open()) {
 		char _c = '\0';
-		float num[3] = { 0, 0, 0 };
+		double num[3] = { 0, 0, 0 };
 		int _i = 0;
 
 		while (true) {
@@ -602,7 +596,7 @@ void LoadX(vector<vector<float>>& X, const char* sourcePath) {
 				if (num[2] == 0) {
 					X[i][j] = num[0] / 255;
 					j++;
-					if (j == X[i].size()) {
+					if (j == slen) {
 						j = 0;
 						i++;
 					}
@@ -611,7 +605,7 @@ void LoadX(vector<vector<float>>& X, const char* sourcePath) {
 					while (num[0]-- != 0) {
 						X[i][j] = num[1] / 255;
 						j++;
-						if (j == X[i].size()) {
+						if (j == slen) {
 							j = 0;
 							i++;
 						}
@@ -640,7 +634,7 @@ void LoadX(vector<vector<float>>& X, const char* sourcePath) {
 		printf("File can't be load... filepath<<%s>>\n", sourcePath);
 }
 
-void LoadY(vector<vector<float>>& Y, const char* sourcePath) {
+void addit::LoadY(const char* sourcePath, int len, int slen, double** Y) {
 	ifstream read;
 	read.open(sourcePath);
 	int i = 0;
@@ -649,7 +643,7 @@ void LoadY(vector<vector<float>>& Y, const char* sourcePath) {
 		char _c = '\0';
 
 		while ((_c = read.get()) != -1)
-			Y[i++][(size_t)(_c - '0')] = 1.0f;
+			Y[i++][_c - '0'] = 1.0f;
 
 		read.close();
 	}
@@ -657,7 +651,7 @@ void LoadY(vector<vector<float>>& Y, const char* sourcePath) {
 		printf("File can't be load... filepath<<%s>>\n", sourcePath);
 }
 
-double to_double(const char* str) {
+double addit::to_double(const char* str) {
 	double res = 0;
 	size_t i = 0;
 
@@ -678,7 +672,7 @@ double to_double(const char* str) {
 
 	return res + under;
 }
-void printString(const char* str) {
+void addit::printString(const char* str) {
 	for (size_t i = 0; str[i] != '\0'; ++i)
 		printf("%c", str[i]);
 }

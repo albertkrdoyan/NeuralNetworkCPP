@@ -14,25 +14,29 @@ using std::thread;
 using std::ifstream;
 using std::ofstream;
 
-double SigmoidFunction(double x);
-void SoftMaxFunction(double* layer, size_t len);
-int _strcpy(char* target, const char* source, int st);
-int _strcpy(char* target, long long num, int st);
-char* GetTimeFromMilliseconds(long long millisecond);
-void plot(vector<double> arr);
-template<class T> void Shuffle(T** v1, T** v2, size_t len);
-void LoadX(vector<vector<float>>& X, const char* sourcePath);
-void LoadY(vector<vector<float>>& Y, const char* sourcePath);
-double to_double(const char* str);
-void printString(const char* str);
+class addit {
+public:
+	double SigmoidFunction(double x);
+	void SoftMaxFunction(double* layer, size_t len);
+	int _strcpy(char* target, const char* source, int st);
+	int _strcpy(char* target, long long num, int st);
+	char* GetTimeFromMilliseconds(long long millisecond);
+	void plot(vector<double> arr);
+	template<class T> void Shuffle(T** v1, T** v2, size_t len);
+	void LoadX(const char* sourcePath, int len, int slen, double** X);
+	void LoadY(const char* sourcePath, int len, int slen, double** Y);
+	double to_double(const char* str);
+	void printString(const char* str);
+};
 
-enum ActivationFunction {Linear, ReLU, Sigmoid, SoftMax};
-enum LossFunction {CrossEntropy, SquaredError};
+enum ActivationFunction { Linear, ReLU, Sigmoid, SoftMax };
+enum LossFunction { CrossEntropy, SquaredError };
 enum Optimizer { Adam, GradientDescent };
 
 class NeuralNetwork
 {
 private:
+	addit functions;
 	size_t layers_count, threads_count;
 	size_t* neurons_per_layer;
 	double** layers;
@@ -61,6 +65,6 @@ public:
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
 	void Optimizing(double, double);
-	void Train(double** trX, double** trY, size_t size1, size_t size2, size_t size3, int, size_t, double);
-	vector<double> GetLastLayer();
+	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, int lvl, size_t batch, double alpha);
+	double* GetLastLayer();
 };
