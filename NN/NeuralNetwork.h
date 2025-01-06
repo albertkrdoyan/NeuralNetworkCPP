@@ -39,6 +39,7 @@ private:
 	addit functions;
 	size_t layers_count, threads_count;
 	size_t* neurons_per_layer;
+	double* temp;
 	double** layers;
 	double** glayers;
 	double*** weights;

@@ -229,8 +229,11 @@ void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size) {
 	size_t i = 0, j = 0, k = 0;
 	//double sum = 0.f;
 
-	for (size_t i = 0; i < fln_size; ++i)
-		layers[0][i] = fln[i];
+	temp = layers[0];
+	layers[0] = fln;
+
+	/*for (size_t i = 0; i < fln_size; ++i)
+		layers[0][i] = fln[i];*/
 
 	for (i = 1; i < layers_count; ++i) {
 		//#pragma omp parallel for shared(layers, weights, neurons_per_layer) private(j, k)
@@ -394,8 +397,9 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 
 	for (int n = (int)layers_count - 2; n >= 0; --n) {
 		for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
-			for (j = 0; j < neurons_per_layer[n]; ++j)
-				glayers[n][j] = 0;
+			
+			/*for (j = 0; (n != 0 || calculate_first_layer) && j < neurons_per_layer[n]; ++j)
+				glayers[n][j] = 0;*/
 
 			for (j = 0; j < neurons_per_layer[n]; ++j) {
 				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
@@ -410,8 +414,10 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 			{
 			case ReLU:
 				//#pragma omp parallel for
-				for (i = 0; n != 0 && i < neurons_per_layer[n]; ++i)
+				for (i = 0; n != 0 && i < neurons_per_layer[n]; ++i) {
 					glayers[n][i] *= (layers[n][i] > 0 ? 1 : 0);
+					glayers[n][i] *= 1;
+				}
 				break;
 			case Sigmoid:
 				//#pragma omp parallel for
@@ -425,6 +431,8 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 			}
 		}
 	}
+
+	layers[0] = temp;
 }
 
 void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, int lvl, size_t batch, double alpha)

@@ -22,10 +22,10 @@ int main() {
 		tst_img_info[i] = new double[10] {0};
 	}
 
-	f.LoadX("Digits2\\trainX.txt", tr_len, img_len, tr_img);
+	/*f.LoadX("Digits2\\trainX.txt", tr_len, img_len, tr_img);
 	f.LoadY("Digits2\\trainY.txt", tr_len, 10, tr_img_info);
 	f.LoadX("Digits2\\testX.txt", tst_len, img_len, tst_img);
-	f.LoadY("Digits2\\testY.txt", tst_len, 10, tst_img_info);
+	f.LoadY("Digits2\\testY.txt", tst_len, 10, tst_img_info);*/
 	
 	// init
 	NeuralNetwork nn;
@@ -40,21 +40,18 @@ int main() {
 
 	printf("Train\n");
 	// nn.Train(tr_img, tr_img_info, tr_len, img_len, 10, 5, 32, 0.03);
-	nn.LoadWeights("C:\\Users\\alber\\source\\repos\\Neural Network\\weis.dat");
+	nn.LoadWeights("C:\\Users\\User\\source\\repos\\NN\\nnc-\\weis.dat");
 
 	double* inp = new double[3] {.5, .8, .4};
 	double* out = new double[2] {1, 0};
 
 	nn.NeuralMultiplication(inp, 3);
-	nn.BackProp(out, 2);
-
 	nn.PrintLayers(0);
+	nn.BackProp(out, 2);
 	nn.PrintWeights();
 	nn.PrintGradients("ALL", 0);
 
 	delete[] inp, out;
-
-
 
 	/*double* d = new double[10];
 	double count = 0, summ = 0;
