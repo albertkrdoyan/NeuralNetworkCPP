@@ -4,6 +4,16 @@ NeuralNetwork::NeuralNetwork() {
 	const auto processor_count = std::thread::hardware_concurrency();
 	//printf("Cores in CPU: %u.\n", processor_count);
 
+	temp = nullptr;
+	layers = nullptr;
+	glayers = nullptr;
+	weights = nullptr;
+	gradients = nullptr;
+	moment1 = nullptr;
+	moment2 = nullptr;
+	neurons_per_layer = nullptr;
+	errors = nullptr;
+
 	this->t = 1;
 	this->betta1 = 0.9;
 	this->betta2 = 0.999;
@@ -20,6 +30,8 @@ NeuralNetwork::NeuralNetwork() {
 NeuralNetwork::~NeuralNetwork()
 {
 	if (layers_count == 0) return;
+
+	if (errors != nullptr) delete[] errors;
 
 	for (size_t i = 0; i < layers_count - 1; ++i) {
 		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
@@ -442,17 +454,18 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 
 void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha)
 {
-	errors.clear();
-	size_t size = (train_size / batch), btch = 0, err = 0, print_speed = 4 * batch;
-	errors.reserve(size);
+	size_t size = (train_size / batch), btch = 0, err = 0, print_speed = size;
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
+
+	errors = new double[size * lvl];
+	size_t err_index = 0;
 
 	start = std::chrono::high_resolution_clock::now();
 	for (size_t l = 0; l < lvl; ++l) {
 		if (l != 0) functions.Shuffle(inputs, ys, train_size);
 		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));			
-			errors.push_back(0);
+			errors[err_index] = 0;
 
 			//#pragma omp parallel for shared(layers, weights, neurons_per_layer, errors, glayers, gradients) private(btch)
 			for (btch = i * batch; btch < (i == size - 1 ? train_size : (i + 1) * batch); ++btch) {
@@ -460,26 +473,28 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 
 				if (loss == SquaredError) {
 					for (err = 0; err < output_length; ++err) {
-						errors.back() += (float)pow(ys[btch][err] - layers[layers_count - 1][err], 2);
+						errors[err_index] += pow(ys[btch][err] - layers[layers_count - 1][err], 2);
 					}
 				}
 				else if (loss == CrossEntropy) {
 					for (err = 0; err < output_length; ++err) {
-						errors.back() += (ys[btch][err] == 0 ? 0 : -log(layers[layers_count - 1][err]));
+						errors[err_index] += (ys[btch][err] == 0 ? 0 : -log(layers[layers_count - 1][err]));
 					}
 				}
 
 				BackProp(ys[btch], output_length);
 			}
-			errors.back() /= batch;
+			errors[err_index++] /= batch;
 
 			Optimizing(alpha, (double)batch);
 
 			if ((i + 1) % print_speed == 0 || i == size - 1) {
 				end = std::chrono::high_resolution_clock::now();
 				duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-				functions.printString(functions.GetTimeFromMilliseconds((duration / print_speed) * (size * (lvl - l) - i)));
-				printf(" --- lvl : %zu/%d, batch : %zu/%zu -- %.2f seconds.\n", l + 1, lvl, i + 1, size, (double)duration / 1000);
+				char* dur = functions.GetTimeFromMilliseconds((duration / print_speed) * (size * (lvl - l) - i));
+				functions.printString(dur);
+				delete[] dur;
+				printf(" --- lvl : %zu/%zu, batch : %zu/%zu -- %.2f seconds.\n", l + 1, lvl, i + 1, size, (double)duration / 1000);
 				start = std::chrono::high_resolution_clock::now();
 			}
 		}
@@ -495,7 +510,7 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 
 	//SaveWeights("Digits2/ws.txt");
 
-	functions.plot(errors);
+	functions.plot(errors, err_index);
 }
 
 double* NeuralNetwork::Predict(double* input, size_t fln_size)
@@ -577,6 +592,7 @@ char* addit::GetTimeFromMilliseconds(long long millisecond)
 	minutes %= 60;
 
 	char* result = new char[128] {};
+	//char result[128];
 	int i = 0;
 	i = _strcpy(result, "Hours: ", i);
 	i = _strcpy(result, hours, i);
@@ -589,16 +605,16 @@ char* addit::GetTimeFromMilliseconds(long long millisecond)
 	return result;
 }
 
-void addit::plot(vector<double> arr) {
+void addit::plot(double* arr, size_t size) {
 	ofstream wr;
 	wr.open("plot.txt");
 
-	for (size_t i = 0; i < arr.size(); ++i)
+	for (size_t i = 0; i < size; ++i)
 		wr << arr[i] << '\n';
 
 	wr.close();
 
-	system("plot.py");
+	//system("plot.py");
 }
 
 template<class T> void addit::Shuffle(T** v1, T** v2, size_t len) {

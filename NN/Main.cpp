@@ -2,7 +2,7 @@
 #include "NeuralNetwork.h"
 
 int main() {
-	srand(time(NULL));
+	srand(time(0));
 
 	addit f;
 
@@ -29,7 +29,9 @@ int main() {
 	f.LoadY("Digits2\\testY.txt", tst_len, res_len, tst_img_info);
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	std::cout << "Download compl. : " << f.GetTimeFromMilliseconds(duration) << "\n";
+	char* dur = f.GetTimeFromMilliseconds(duration);
+	std::cout << "Download compl. : " << dur << "\n";
+	delete[] dur;
 
 	// init
 	NeuralNetwork nn;
@@ -44,10 +46,13 @@ int main() {
 
 	printf("Train\n");
 	start = std::chrono::high_resolution_clock::now();
-	nn.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 1, 32, 0.0001);
+	nn.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 10, 32, 0.03);
 	end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	std::cout << "Train compl. :" << f.GetTimeFromMilliseconds(duration) << "\n";
+	dur = f.GetTimeFromMilliseconds(duration);
+	std::cout << "Train compl. : " << dur << "\n";
+	delete[] dur;
+	system("plot.py");
 
 	double* d;
 	double count = 0, summ = 0;
@@ -70,8 +75,34 @@ int main() {
 			count++;
 	}
 
-	std::cout << '\n' << "%% " << 100 * count / tst_len << '\n';
+	printf("\n%.2f%%\n", 100 * count / tst_len);
+	///
 
+	count = summ = 0;
+	for (int i = 0; i < tr_len; ++i) {
+		d = nn.Predict(tr_img[i], img_len);
+
+		int ind = -1, match = -1;
+		double max = -1;
+
+		for (int j = 0; j < 10; ++j) {
+			if (d[j] > max) {
+				max = d[j];
+				ind = j;
+			}
+			if (tr_img_info[i][j] == 1)
+				match = j;
+		}
+
+		if (match == ind)
+			count++;
+	}
+
+	printf("\n%.2f%%\n", 100 * count / tr_len);
+
+	nn.SaveWeights("Digits2\\digits_784_128_10.txt");
+
+	// del
 	for (int i = 0; i < tr_len; ++i)
 		delete[] tr_img[i];
 	delete[] tr_img;
@@ -81,8 +112,7 @@ int main() {
 		delete[] tst_img[i];
 	delete[] tst_img;
 	delete[] tst_img_info;
-
-	nn.SaveWeights("Digits2\\digits_784_128_10.txt");
+	
 	system("pause");
 
 	return 0;

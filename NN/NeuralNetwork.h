@@ -21,7 +21,7 @@ public:
 	int _strcpy(char* target, const char* source, int st);
 	int _strcpy(char* target, long long num, int st);
 	char* GetTimeFromMilliseconds(long long millisecond);
-	void plot(vector<double> arr);
+	void plot(double* arr, size_t size);
 	template<class T> void Shuffle(T** v1, T** v2, size_t len);
 	void LoadX(const char* sourcePath, int len, int slen, double** X);
 	void LoadY(const char* sourcePath, int len, int slen, double** Y);
@@ -49,7 +49,7 @@ private:
 	ActivationFunction act, llact;
 	LossFunction loss;
 	Optimizer opt;
-	vector<double> errors;
+	double* errors;
 	double betta1, betta2, betta1toTpower, betta2toTpower, alpha_t;
 	int t;
 public:
