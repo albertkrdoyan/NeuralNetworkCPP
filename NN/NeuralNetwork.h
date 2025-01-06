@@ -26,7 +26,7 @@ public:
 	void LoadX(const char* sourcePath, int len, int slen, double** X);
 	void LoadY(const char* sourcePath, int len, int slen, double** Y);
 	double to_double(const char* str);
-	void printString(const char* str);
+	void printString(const char* str, bool new_line = false);
 };
 
 enum ActivationFunction { Linear, ReLU, Sigmoid, SoftMax };
@@ -50,7 +50,7 @@ private:
 	LossFunction loss;
 	Optimizer opt;
 	vector<double> errors;
-	double betta1, betta2;
+	double betta1, betta2, betta1toTpower, betta2toTpower, alpha_t;
 	int t;
 public:
 	NeuralNetwork();
@@ -66,6 +66,7 @@ public:
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
 	void Optimizing(double, double);
-	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, int lvl, size_t batch, double alpha);
+	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha);
+	double* Predict(double* input, size_t fln_size);
 	double* GetLastLayer();
 };

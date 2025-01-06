@@ -5,8 +5,11 @@ NeuralNetwork::NeuralNetwork() {
 	//printf("Cores in CPU: %u.\n", processor_count);
 
 	this->t = 1;
-	this->betta1 = 0.9f;
-	this->betta2 = 0.999f;
+	this->betta1 = 0.9;
+	this->betta2 = 0.999;
+	this->betta1toTpower = 1;
+	this->betta2toTpower = 1;
+	this->alpha_t = 1;
 	this->threads_count = 4;
 	this->llact = act = ReLU;
 	this->layers_count = 0;
@@ -349,17 +352,21 @@ void NeuralNetwork::Optimizing(double alpha, double batch)
 		}
 	}
 	else {
-		double m1H = 0, m2H = 0, betta1toTpower = 1.0f, betta2toTpower = 1.0f;
+		double m1H = 0, m2H = 0;
+		betta1toTpower *= betta1;
+		betta2toTpower *= betta2;
+		alpha_t = alpha * (sqrt(1 - betta2toTpower)) / (1 - betta1toTpower);
+
 		for (n = 0; n < layers_count - 1; ++n) {
 			for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
 				for (j = 0; j < neurons_per_layer[n] + 1; ++j) {
 					moment1[n][i][j] = betta1 * moment1[n][i][j] + (1 - betta1) * gradients[n][i][j];
 					moment2[n][i][j] = betta2 * moment2[n][i][j] + (1 - betta2) * gradients[n][i][j] * gradients[n][i][j];
 
-					m1H = moment1[n][i][j] / (1 - (betta1toTpower *= betta1));
-					m2H = moment2[n][i][j] / (1 - (betta2toTpower *= betta2));
+					m1H = moment1[n][i][j] / (1 - betta1toTpower);
+					m2H = moment2[n][i][j] / (1 - betta2toTpower);
 
-					weights[n][i][j] -= (alpha * m1H) / (sqrt(m2H) + 0.00000001);
+					weights[n][i][j] -= (alpha_t * m1H) / (sqrt(m2H) + 0.00000001);
 					gradients[n][i][j] = 0;
 				}
 			}
@@ -396,11 +403,9 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 	size_t j = 0, i = 0;
 
 	for (int n = (int)layers_count - 2; n >= 0; --n) {
+		for (j = 0; (n != 0 || calculate_first_layer) && j < neurons_per_layer[n]; ++j)
+			glayers[n][j] = 0;
 		for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
-			
-			/*for (j = 0; (n != 0 || calculate_first_layer) && j < neurons_per_layer[n]; ++j)
-				glayers[n][j] = 0;*/
-
 			for (j = 0; j < neurons_per_layer[n]; ++j) {
 				gradients[n][i][j] += glayers[n + 1][i] * layers[n][j]; // de/dw
 				if (n != 0 || calculate_first_layer)
@@ -435,10 +440,10 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 	layers[0] = temp;
 }
 
-void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, int lvl, size_t batch, double alpha)
+void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha)
 {
 	errors.clear();
-	size_t size = (train_size / batch), btch = 0, err = 0;
+	size_t size = (train_size / batch), btch = 0, err = 0, print_speed = 4 * batch;
 	errors.reserve(size);
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
@@ -469,17 +474,35 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 			errors.back() /= batch;
 
 			Optimizing(alpha, (double)batch);
+
+			if ((i + 1) % print_speed == 0 || i == size - 1) {
+				end = std::chrono::high_resolution_clock::now();
+				duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+				functions.printString(functions.GetTimeFromMilliseconds((duration / print_speed) * (size * (lvl - l) - i)));
+				printf(" --- lvl : %zu/%d, batch : %zu/%zu -- %.2f seconds.\n", l + 1, lvl, i + 1, size, (double)duration / 1000);
+				start = std::chrono::high_resolution_clock::now();
+			}
 		}
 
-		end = std::chrono::high_resolution_clock::now();
-		duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-		printf(" --- %zu Batch :%zu/%d\n", duration / 1000, l, lvl);
-		start = std::chrono::high_resolution_clock::now();
+		//if (l % 1 == 0) {
+		//	end = std::chrono::high_resolution_clock::now();
+		//	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+		//	/*printf(" --- %.3f Batch :%zu/%d\n", (double)duration / 1000, l * size + i, lvl * size);*/
+		//	printf(" --- %.3f seconds, lvl : %zu/%d\n", (double)duration / 1000, l + 1, lvl);
+		//	start = std::chrono::high_resolution_clock::now();
+		//}
 	}
 
 	//SaveWeights("Digits2/ws.txt");
 
 	functions.plot(errors);
+}
+
+double* NeuralNetwork::Predict(double* input, size_t fln_size)
+{
+	NeuralMultiplication(input, fln_size);
+	layers[0] = temp;
+	return GetLastLayer();
 }
 
 double* NeuralNetwork::GetLastLayer()
@@ -680,7 +703,8 @@ double addit::to_double(const char* str) {
 
 	return res + under;
 }
-void addit::printString(const char* str) {
+void addit::printString(const char* str, bool new_line) {
 	for (size_t i = 0; str[i] != '\0'; ++i)
 		printf("%c", str[i]);
+	if (new_line) printf("\n");
 }

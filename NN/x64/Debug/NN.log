@@ -1,2 +1,6 @@
 ﻿  NeuralNetwork.cpp
+C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(482,12): warning C4477: "printf": в строке форматирования "%d" требуется аргумент типа "int", но вариативный аргумент "2" имеет тип "size_t"
+      C:\Users\User\source\repos\NeuralNetworkCPP\NN\NeuralNetwork.cpp(482,12):
+      рекомендуется использовать "%zd" в строке форматирования
+  
   NN.vcxproj -> C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe
