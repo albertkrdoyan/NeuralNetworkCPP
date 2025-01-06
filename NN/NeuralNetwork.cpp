@@ -31,7 +31,8 @@ NeuralNetwork::~NeuralNetwork()
 {
 	if (layers_count == 0) return;
 
-	if (errors != nullptr) delete[] errors;
+	if (errors != nullptr) 
+		delete[] errors;
 
 	for (size_t i = 0; i < layers_count - 1; ++i) {
 		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
@@ -372,6 +373,8 @@ void NeuralNetwork::Optimizing(double alpha, double batch)
 		for (n = 0; n < layers_count - 1; ++n) {
 			for (i = 0; i < neurons_per_layer[n + 1]; ++i) {
 				for (j = 0; j < neurons_per_layer[n] + 1; ++j) {
+					gradients[n][i][j] /= batch;
+
 					moment1[n][i][j] = betta1 * moment1[n][i][j] + (1 - betta1) * gradients[n][i][j];
 					moment2[n][i][j] = betta2 * moment2[n][i][j] + (1 - betta2) * gradients[n][i][j] * gradients[n][i][j];
 

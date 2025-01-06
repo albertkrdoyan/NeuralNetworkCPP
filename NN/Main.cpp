@@ -46,7 +46,7 @@ int main() {
 
 	printf("Train\n");
 	start = std::chrono::high_resolution_clock::now();
-	nn.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 10, 32, 0.03);
+	nn.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 10, 32, 0.01);
 	end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	dur = f.GetTimeFromMilliseconds(duration);
