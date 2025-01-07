@@ -1,17 +1,17 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\",
+  "WorkspaceRootPath": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\NeuralNetwork.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{970C800E-BAB2-41BB-9C87-1BC1AD6B7BC7}|NN\\NN.vcxproj|solutionrelative:NN\\NeuralNetwork.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -32,11 +32,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Main.cpp",
-              "DocumentMoniker": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\Main.cpp",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\Main.cpp",
               "RelativeDocumentMoniker": "NN\\Main.cpp",
-              "ToolTip": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\Main.cpp*",
-              "RelativeToolTip": "NN\\Main.cpp*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAeAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\Main.cpp",
+              "RelativeToolTip": "NN\\Main.cpp",
+              "ViewState": "AgIAACcAAAAAAAAAAAAAAAQAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-05T13:28:14.647Z",
               "EditorCaption": ""
@@ -45,21 +45,22 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "NeuralNetwork.cpp",
-              "DocumentMoniker": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\NeuralNetwork.cpp",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.cpp",
               "RelativeDocumentMoniker": "NN\\NeuralNetwork.cpp",
-              "ToolTip": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\NeuralNetwork.cpp",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.cpp",
               "RelativeToolTip": "NN\\NeuralNetwork.cpp",
-              "ViewState": "AgIAAB0AAACgmZmZmRkhwCIAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAMYBAAAAAAAAAAAIwM4BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-01-03T22:34:51.328Z"
+              "WhenOpened": "2025-01-03T22:34:51.328Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "NeuralNetwork.h",
-              "DocumentMoniker": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\NeuralNetwork.h",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h",
               "RelativeDocumentMoniker": "NN\\NeuralNetwork.h",
-              "ToolTip": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\NeuralNetwork.h",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\NeuralNetworkCPP\\NN\\NeuralNetwork.h",
               "RelativeToolTip": "NN\\NeuralNetwork.h",
               "ViewState": "AgIAACcAAAAAAAAAAAAAADgAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",

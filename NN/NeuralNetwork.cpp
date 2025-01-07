@@ -461,7 +461,9 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
 
-if errors isnt nullptr delete it
+	if (errors != nullptr)
+		delete[] errors;
+
 	errors = new double[size * lvl];
 	size_t err_index = 0;
 
