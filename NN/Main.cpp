@@ -2,8 +2,9 @@
 #include "NeuralNetwork.h"
 
 int main() {
-	NeuralNetwork add;
-	add.Init({ 2,2,1 }, ReLU, ReLU, SquaredError, Adam);
+	/*NeuralNetwork add;
+	add.Init({ 2,2,1 }, Linear, Linear, SquaredError, Adam);
+	add.LoadWeights("addition_weights_2_2_1.txt");
 
 	int tr_size = 50;
 	double** inputs = new double* [tr_size] {};
@@ -17,11 +18,12 @@ int main() {
 		y[i] = new double[1] {d1 + d2};
 	}
 
-	add.Train(inputs, y, tr_size, 2, 1, 1000, 10, 0.01);
-	add.SaveWeights("addition_weights_2_2_1.txt");
-	system("plot.py");
+	//add.Train(inputs, y, tr_size, 2, 1, 1000, 10, 0.01);
+	//add.SaveWeights("addition_weights_2_2_1.txt");
+	//system("plot.py");
+	add.PrintWeights();
 
-	double* inp = new double[2]{7.5, 8.05};
+	double* inp = new double[2]{7.5, -8.55};
 	double* ans = add.Predict(inp, 2);
 
 	printf("%f", ans[0]);
@@ -30,8 +32,8 @@ int main() {
 		delete[] inputs[i], y[i];
 	}
 	delete[] inputs, y;
-
-	return 0;
+	
+	return 0;*/
 	srand((unsigned int)time(0));
 
 	addit f;
@@ -64,8 +66,8 @@ int main() {
 	delete[] dur;
 
 	// init
-	NeuralNetwork nn;
-	if (nn.Init(
+	NeuralNetwork digit_rec;
+	if (digit_rec.Init(
 			{ img_len, 128, res_len },
 			ActivationFunction::ReLU,
 			ActivationFunction::SoftMax,
@@ -73,23 +75,22 @@ int main() {
 			Optimizer::Adam
 		) == -1) {printf("no init.\n"); return 0;
 	}
+	digit_rec.LoadWeights("Digits2\\digits_784_128_10_adam_0d001.txt");
 
 	printf("Train\n");
 	start = std::chrono::high_resolution_clock::now();
-	//nn.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 20, 32, 0.01);
+	digit_rec.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 10, 32, 0.0001, true);
 	end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	dur = f.GetTimeFromMilliseconds(duration);
 	std::cout << "Train compl. : " << dur << "\n";
 	delete[] dur;
-	//system("plot.py");
-
-	nn.LoadWeights("Digits2\\digits_784_128_10_adam_0d001.txt");
+	system("plot.py");
 
 	double* d;
 	double count = 0, summ = 0;
 	for (int i = 0; i < tst_len; ++i) {
-		d = nn.Predict(tst_img[i], img_len);
+		d = digit_rec.Predict(tst_img[i], img_len);
 
 		int ind = -1, match = -1;
 		double max = -1;
@@ -107,12 +108,12 @@ int main() {
 			count++;
 	}
 
-	printf("\nTest: %.2f%%\n", 100 * count / tst_len);
+	printf("\nTest: %.4f%%\n", 100 * count / tst_len);
 	///
 
 	count = summ = 0;
 	for (int i = 0; i < tr_len; ++i) {
-		d = nn.Predict(tr_img[i], img_len);
+		d = digit_rec.Predict(tr_img[i], img_len);
 
 		int ind = -1, match = -1;
 		double max = -1;
@@ -130,9 +131,9 @@ int main() {
 			count++;
 	}
 
-	printf("\nTrain: %.2f%%\n", 100 * count / tr_len);
+	printf("\nTrain: %.4f%%\n", 100 * count / tr_len);
 
-	nn.SaveWeights("Digits2\\digits_784_128_10_adam_0d001_c.txt");
+	digit_rec.SaveWeights("Digits2\\digits_784_128_10_adam_0d0001.txt");
 
 	// del
 	for (int i = 0; i < tr_len; ++i)

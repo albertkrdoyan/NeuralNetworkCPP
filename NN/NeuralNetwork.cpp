@@ -707,8 +707,13 @@ void addit::LoadY(const char* sourcePath, int len, int slen, double** Y) {
 }
 
 double addit::to_double(const char* str) {
-	double res = 0;
+	double res = 0, is_pos = 1;
 	size_t i = 0;
+
+	if (str[i] == '-') {
+		i++;
+		is_pos = -1;
+	}
 
 	for (; str[i] != '.' && str[i] != '\0'; ++i) {
 		res *= 10.0f;
@@ -725,7 +730,7 @@ double addit::to_double(const char* str) {
 		under += dec * (str[i] - '0');
 	}
 
-	return res + under;
+	return is_pos * (res + under);
 }
 void addit::printString(const char* str, bool new_line) {
 	for (size_t i = 0; str[i] != '\0'; ++i)
