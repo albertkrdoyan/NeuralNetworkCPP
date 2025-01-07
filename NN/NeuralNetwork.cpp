@@ -455,9 +455,11 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 	layers[0] = temp;
 }
 
-void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha)
+void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print)
 {
-	size_t size = (train_size / batch), btch = 0, err = 0, print_speed = size;
+	size_t size = (train_size / batch), btch = 0, err = 0, print_speed = size / 3;
+	if (print_speed == 0) print_speed = 1;
+
 	std::chrono::steady_clock::time_point start, end;
 	long long duration;
 
@@ -494,7 +496,7 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 
 			Optimizing(alpha, (double)batch);
 
-			if ((i + 1) % print_speed == 0 || i == size - 1) {
+			if (((i + 1) % print_speed == 0 || i == size - 1) && print) {
 				end = std::chrono::high_resolution_clock::now();
 				duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 				char* dur = functions.GetTimeFromMilliseconds((duration / print_speed) * (size * (lvl - l) - i));

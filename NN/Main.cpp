@@ -2,6 +2,36 @@
 #include "NeuralNetwork.h"
 
 int main() {
+	NeuralNetwork add;
+	add.Init({ 2,2,1 }, ReLU, ReLU, SquaredError, Adam);
+
+	int tr_size = 50;
+	double** inputs = new double* [tr_size] {};
+	double** y = new double* [tr_size] {};
+
+	srand((unsigned int)time(0));
+
+	for (int i = 0; i < tr_size; ++i) {
+		double d1 = rand() % 10, d2 = rand() % 10;
+		inputs[i] = new double[2] {d1, d2};
+		y[i] = new double[1] {d1 + d2};
+	}
+
+	add.Train(inputs, y, tr_size, 2, 1, 1000, 10, 0.01);
+	add.SaveWeights("addition_weights_2_2_1.txt");
+	system("plot.py");
+
+	double* inp = new double[2]{7.5, 8.05};
+	double* ans = add.Predict(inp, 2);
+
+	printf("%f", ans[0]);
+
+	for (int i = 0; i < tr_size; ++i) {
+		delete[] inputs[i], y[i];
+	}
+	delete[] inputs, y;
+
+	return 0;
 	srand((unsigned int)time(0));
 
 	addit f;
@@ -46,13 +76,15 @@ int main() {
 
 	printf("Train\n");
 	start = std::chrono::high_resolution_clock::now();
-	nn.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 10, 32, 0.01);
+	//nn.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 20, 32, 0.01);
 	end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	dur = f.GetTimeFromMilliseconds(duration);
 	std::cout << "Train compl. : " << dur << "\n";
 	delete[] dur;
-	system("plot.py");
+	//system("plot.py");
+
+	nn.LoadWeights("Digits2\\digits_784_128_10_adam_0d001.txt");
 
 	double* d;
 	double count = 0, summ = 0;
@@ -75,7 +107,7 @@ int main() {
 			count++;
 	}
 
-	printf("\n%.2f%%\n", 100 * count / tst_len);
+	printf("\nTest: %.2f%%\n", 100 * count / tst_len);
 	///
 
 	count = summ = 0;
@@ -98,9 +130,9 @@ int main() {
 			count++;
 	}
 
-	printf("\n%.2f%%\n", 100 * count / tr_len);
+	printf("\nTrain: %.2f%%\n", 100 * count / tr_len);
 
-	nn.SaveWeights("Digits2\\digits_784_128_10.txt");
+	nn.SaveWeights("Digits2\\digits_784_128_10_adam_0d001_c.txt");
 
 	// del
 	for (int i = 0; i < tr_len; ++i)

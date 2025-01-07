@@ -66,7 +66,7 @@ public:
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
 	void Optimizing(double, double);
-	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha);
+	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print = false);
 	double* Predict(double* input, size_t fln_size);
 	double* GetLastLayer();
 };
