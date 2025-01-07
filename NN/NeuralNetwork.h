@@ -51,22 +51,26 @@ private:
 	Optimizer opt;
 	double* errors;
 	double betta1, betta2, betta1toTpower, betta2toTpower, alpha_t;
-	int t;
+
+	void NeuralMultiplication(double* input, size_t fln_size);
+	void Activation(size_t layer, ActivationFunction);
+	void ActDerivative(size_t layer, ActivationFunction);
+	void BackProp(double* y, size_t y_size, bool cfl = false);	
+	void Optimizing(double, double);
+	double* GetLastLayer();
 public:
 	NeuralNetwork();
 	~NeuralNetwork();
-	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt); //
-	void PrintLayers(size_t); //
-	void PrintWeights(); //
-	void PrintGradients(const char*, size_t); //
-	void PrintInfo(); //
-	void NeuralMultiplication(double* input, size_t fln_size);
-	void Activation(size_t layer, ActivationFunction);
-	void BackProp(double* y, size_t y_size, bool cfl = false);
+	
+	void PrintLayers(size_t);
+	void PrintWeights();
+	void PrintGradients(const char*, size_t); 
+	void PrintInfo(); 
+
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
-	void Optimizing(double, double);
+
+	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt); //
 	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print = false);
 	double* Predict(double* input, size_t fln_size);
-	double* GetLastLayer();
 };

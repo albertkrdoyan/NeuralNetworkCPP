@@ -66,8 +66,8 @@ int main() {
 	delete[] dur;
 
 	// init
-	NeuralNetwork digit_rec;
-	if (digit_rec.Init(
+	NeuralNetwork digit_rec_model_perceptron;
+	if (digit_rec_model_perceptron.Init(
 			{ img_len, 128, res_len },
 			ActivationFunction::ReLU,
 			ActivationFunction::SoftMax,
@@ -75,22 +75,27 @@ int main() {
 			Optimizer::Adam
 		) == -1) {printf("no init.\n"); return 0;
 	}
-	digit_rec.LoadWeights("Digits2\\digits_784_128_10_adam_0d001.txt");
+	//digit_rec.LoadWeights("Digits2\\digits_784_128_10_adam_0d001.txt");
 
 	printf("Train\n");
 	start = std::chrono::high_resolution_clock::now();
-	digit_rec.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 10, 32, 0.0001, true);
+
+	digit_rec_model_perceptron.Train(tr_img, tr_img_info, tr_len, img_len, res_len, 10, 32, 0.01, true);
+
 	end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	dur = f.GetTimeFromMilliseconds(duration);
 	std::cout << "Train compl. : " << dur << "\n";
 	delete[] dur;
+
+	//digit_rec.SaveWeights("Digits2\\digits_784_128_10_adam_0d0001.txt");
+
 	system("plot.py");
 
 	double* d;
 	double count = 0, summ = 0;
 	for (int i = 0; i < tst_len; ++i) {
-		d = digit_rec.Predict(tst_img[i], img_len);
+		d = digit_rec_model_perceptron.Predict(tst_img[i], img_len);
 
 		int ind = -1, match = -1;
 		double max = -1;
@@ -113,7 +118,7 @@ int main() {
 
 	count = summ = 0;
 	for (int i = 0; i < tr_len; ++i) {
-		d = digit_rec.Predict(tr_img[i], img_len);
+		d = digit_rec_model_perceptron.Predict(tr_img[i], img_len);
 
 		int ind = -1, match = -1;
 		double max = -1;
@@ -131,9 +136,7 @@ int main() {
 			count++;
 	}
 
-	printf("\nTrain: %.4f%%\n", 100 * count / tr_len);
-
-	digit_rec.SaveWeights("Digits2\\digits_784_128_10_adam_0d0001.txt");
+	printf("\nTrain: %.4f%%\n", 100 * count / tr_len);	
 
 	// del
 	for (int i = 0; i < tr_len; ++i)
@@ -149,34 +152,4 @@ int main() {
 	system("pause");
 
 	return 0;
-	/*
-	nn.PrintInfo();
-	printf("Start Train\n");
-	nn.Train(TrainX, TrainY, 2, 16, 0.01);
-
-	float corrects = .0f;
-	size_t i = 0, j = 0;
-	for (j = 0; j < 10000; ++j) {
-		nn.NeuralMultiplication(TestX[j]);
-		
-		auto ans = nn.GetLastLayer();
-		int realNum = -1, guessNum = -1, guessI = -1;
-
-		for (i = 0; i < 10; ++i) {
-			if (TestY[j][i] == 1)
-				realNum = i;
-			if (ans[i] > guessNum) {
-				guessNum = (int)ans[i];
-				guessI = i;
-			}
-		}
-
-		if (guessI == realNum)
-			++corrects;
-	}
-
-	printf("\n%f%", corrects / 100);
-	system("pause");
-
-	return 0;*/
 }
