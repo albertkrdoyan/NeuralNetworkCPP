@@ -2,7 +2,7 @@
 #include "NeuralNetwork.h"
 
 int main() {
-	srand(time(0));
+	srand((unsigned int)time(0));
 
 	addit f;
 
