@@ -139,13 +139,17 @@ int main() {
 	printf("\nTrain: %.4f%%\n", 100 * count / tr_len);	
 
 	// del
-	for (int i = 0; i < tr_len; ++i)
+	for (int i = 0; i < tr_len; ++i){
 		delete[] tr_img[i];
+		delete[] tr_img_info[i];
+	}
 	delete[] tr_img;
 	delete[] tr_img_info;
 
-	for (int i = 0; i < tst_len; ++i)
+	for (int i = 0; i < tst_len; ++i){
 		delete[] tst_img[i];
+		delete[] tst_img_info[i];
+	}
 	delete[] tst_img;
 	delete[] tst_img_info;
 	
