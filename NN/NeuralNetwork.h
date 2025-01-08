@@ -14,6 +14,27 @@ using std::thread;
 using std::ifstream;
 using std::ofstream;
 
+enum ActivationFunction { Linear, ReLU, Sigmoid, SoftMax };
+enum LossFunction { CrossEntropy, SquaredError };
+enum Optimizer { Adam, GradientDescent };
+
+class DataSet {
+	double **_train_inputs, **_train_outputs;
+	double **_test_inputs, **_test_outputs;
+
+	size_t train_data_length, input_length, output_length, test_data_length;
+	void DeleteTrainParams();
+	void DeleteTestParams();
+public:
+	DataSet();
+	DataSet(size_t train_data_length, size_t input_length, size_t output_length);
+	DataSet(size_t train_data_length, size_t test_data_length, size_t input_length, size_t output_length);
+	void SetTrainDataParams(size_t train_data_length, size_t input_length, size_t output_length);
+	void SetTestDataParams(size_t test_data_length, size_t input_length, size_t output_length);
+	void PrintInfo() const;
+	~DataSet();
+};
+
 class addit {
 public:
 	double SigmoidFunction(double x);
@@ -28,10 +49,6 @@ public:
 	double to_double(const char* str);
 	void printString(const char* str, bool new_line = false);
 };
-
-enum ActivationFunction { Linear, ReLU, Sigmoid, SoftMax };
-enum LossFunction { CrossEntropy, SquaredError };
-enum Optimizer { Adam, GradientDescent };
 
 class NeuralNetwork
 {

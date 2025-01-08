@@ -36,11 +36,19 @@ int main() {
 	return 0;*/
 	srand((unsigned int)time(0));
 
+
+	const int _tr_len = 60000, _tst_len = 10000, _img_len = 28 * 28, _res_len = 10;
+
+	DataSet ds(_tr_len, _tst_len, _img_len, _res_len);
+
+	return 0;
+
 	addit f;
 
 	printf("Loading data\n");
 	auto start = std::chrono::high_resolution_clock::now();
 	const int tr_len = 60000, tst_len = 10000, img_len = 28 * 28, res_len = 10;
+
 	double** tr_img = new double* [tr_len] {};
 	double** tr_img_info = new double* [tr_len] {};
 	double** tst_img = new double* [tst_len] {};

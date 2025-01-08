@@ -709,3 +709,108 @@ void addit::printString(const char* str, bool new_line) {
 		printf("%c", str[i]);
 	if (new_line) printf("\n");
 }
+
+void DataSet::DeleteTrainParams()
+{
+	if (this->train_data_length == 0) return;
+
+	for (size_t i = 0; i < this->train_data_length; ++i) {
+		delete[] this->_train_inputs[i];
+		delete[] this->_train_outputs[i];
+	}
+	delete[] this->_train_inputs;
+	delete[] this->_train_outputs;
+
+	this->train_data_length = 0;
+}
+
+void DataSet::DeleteTestParams()
+{
+	if (this->test_data_length == 0) return;
+
+	for (size_t i = 0; i < this->test_data_length; ++i) {
+		delete[] this->_test_inputs[i];
+		delete[] this->_test_outputs[i];
+	}
+	delete[] this->_test_inputs;
+	delete[] this->_test_outputs;
+
+	this->test_data_length = 0;
+}
+
+DataSet::DataSet()
+{
+	this->train_data_length = 0;
+	this->input_length = 0;
+	this->output_length = 0;
+
+	this->_train_inputs = nullptr;
+	this->_train_outputs = nullptr;
+}
+
+DataSet::DataSet(size_t train_data_length, size_t input_length, size_t output_length)
+{
+	if (this->train_data_length != 0) return;
+
+	SetTrainDataParams(train_data_length, input_length, output_length);
+}
+
+DataSet::DataSet(size_t train_data_length, size_t test_data_length, size_t input_length, size_t output_length)
+{
+	if (this->train_data_length != 0) return;
+
+	SetTrainDataParams(train_data_length, input_length, output_length);
+	SetTestDataParams(test_data_length, input_length, output_length);
+}
+
+void DataSet::SetTrainDataParams(size_t train_data_length, size_t input_length, size_t output_length)
+{
+	if (this->input_length != 0 && this->input_length != input_length) return;
+	if (this->output_length != 0 && this->output_length != output_length) return;
+	if (this->train_data_length != 0) return;
+
+	this->train_data_length = train_data_length;
+	this->input_length = input_length;
+	this->output_length = output_length;
+
+	this->_train_inputs = new double* [train_data_length];
+	this->_train_outputs = new double* [train_data_length];
+
+	for (size_t i = 0; i < train_data_length; ++i) {
+		this->_train_inputs[i] = new double[input_length] {};
+		this->_train_outputs[i] = new double[output_length] {};
+	}
+}
+
+void DataSet::SetTestDataParams(size_t test_data_length, size_t input_length, size_t output_length)
+{
+	if (this->input_length != 0 && this->input_length != input_length) return;
+	if (this->output_length != 0 && this->output_length != output_length) return;
+	if (this->train_data_length != 0) return;
+
+	this->test_data_length = test_data_length;
+	this->input_length = input_length;
+	this->output_length = output_length;
+
+	this->_test_inputs = new double* [test_data_length];
+	this->_test_outputs = new double* [test_data_length];
+
+	for (size_t i = 0; i < test_data_length; ++i) {
+		this->_test_inputs[i] = new double[input_length] {};
+		this->_test_outputs[i] = new double[output_length] {};
+	}
+}
+
+void DataSet::PrintInfo() const
+{
+	printf("Train Data Length: %zu\nTest Data Length: %zu\nInput Length: %zu\nOutput length: %zu\n", 
+		train_data_length, input_length, output_length, test_data_length);
+}
+
+DataSet::~DataSet()
+{
+	DeleteTrainParams();
+	DeleteTestParams();
+
+	this->input_length = this->output_length = 0;
+}
