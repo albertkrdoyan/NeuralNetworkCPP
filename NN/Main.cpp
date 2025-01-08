@@ -33,6 +33,19 @@ int main() {
 	
 	digit_rec_model_perceptron.Test(digit_rec_dataset);
 
+
+	// save weights ?
+	printf("Save weights?: (y/n)");
+	char save = '\0';
+	std::cin >> save;
+
+	if (save == 'y') {
+		char save_file_name[25];
+		printf("Save as(max 24 characters): ");
+		std::cin >> save_file_name;
+		digit_rec_model_perceptron.SaveWeights(save_file_name);
+	}
+
 	system("plot.py");
 	system("pause");
 

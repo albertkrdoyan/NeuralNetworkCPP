@@ -445,7 +445,7 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 	if (print_speed == 0) print_speed = 1;
 
 	std::chrono::steady_clock::time_point start, end;
-	long long duration;
+	long long duration = 0;
 
 	if (errors != nullptr)
 		delete[] errors;
@@ -494,7 +494,7 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 
 	auto end_ = std::chrono::high_resolution_clock::now();
 	auto duration_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
-	char* dur_ = addit::GetTimeFromMilliseconds(duration);
+	char* dur_ = addit::GetTimeFromMilliseconds(duration_);
 	printf("Train compl. : ");
 	addit::printString(dur_, true);
 	delete[] dur_;
