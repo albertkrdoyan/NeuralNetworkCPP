@@ -271,10 +271,10 @@ void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
 		break;
 	case Sigmoid:
 		for (i = 0; i < neurons_per_layer[layer]; ++i)
-			layers[layer][i] = functions.SigmoidFunction(layers[layer][i]);
+			layers[layer][i] = addit::SigmoidFunction(layers[layer][i]);
 		break;
 	case SoftMax:
-		functions.SoftMaxFunction(layers[layer], neurons_per_layer[layer]);
+		addit::SoftMaxFunction(layers[layer], neurons_per_layer[layer]);
 		break;
 	default:
 		break;
@@ -298,7 +298,7 @@ void NeuralNetwork::LoadWeights(const char* path)
 
 			if (_char == ' ' || _char == -1 || _char == '\r' || _char == '\n') {
 				buff[ind] = '\0';
-				weights[n][i][j++] = functions.to_double(buff);
+				weights[n][i][j++] = addit::to_double(buff);
 				ind = 0;
 				if (j == neurons_per_layer[n] + 1) {
 					j = 0;
@@ -438,6 +438,9 @@ void NeuralNetwork::ActDerivative(size_t layer, ActivationFunction act) {
 
 void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print)
 {
+	printf("\nTraining\n");
+	auto start_ = std::chrono::high_resolution_clock::now();
+
 	size_t size = (train_size / batch), btch = 0, err = 0, print_speed = size / 3;
 	if (print_speed == 0) print_speed = 1;
 
@@ -452,7 +455,7 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 
 	start = std::chrono::high_resolution_clock::now();
 	for (size_t l = 0; l < lvl; ++l) {
-		if (l != 0) functions.Shuffle(inputs, ys, train_size);
+		if (l != 0) addit::Shuffle(inputs, ys, train_size);
 		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));			
 			errors[err_index] = 0;
 
@@ -480,8 +483,8 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 			if (((i + 1) % print_speed == 0 || i == size - 1) && print) {
 				end = std::chrono::high_resolution_clock::now();
 				duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-				char* dur = functions.GetTimeFromMilliseconds((duration / print_speed) * (size * (lvl - l) - i));
-				functions.printString(dur);
+				char* dur = addit::GetTimeFromMilliseconds((duration / print_speed) * (size * (lvl - l) - i));
+				addit::printString(dur);
 				delete[] dur;
 				printf(" --- lvl : %zu/%zu, batch : %zu/%zu -- %.2f seconds.\n", l + 1, lvl, i + 1, size, (double)duration / 1000);
 				start = std::chrono::high_resolution_clock::now();
@@ -489,7 +492,19 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 		}
 	}
 
-	functions.plot(errors, err_index);
+	auto end_ = std::chrono::high_resolution_clock::now();
+	auto duration_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
+	char* dur_ = addit::GetTimeFromMilliseconds(duration);
+	printf("Train compl. : ");
+	addit::printString(dur_, true);
+	delete[] dur_;
+
+	addit::plot(errors, err_index);
+}
+
+void NeuralNetwork::Train(DataSet &ds, size_t lvl, size_t batch, double alpha, bool print)
+{
+	Train(ds._train_inputs, ds._train_outputs, ds.train_data_length, ds.input_length, ds.output_length, lvl, batch, alpha, print);
 }
 
 double* NeuralNetwork::Predict(double* input, size_t fln_size)
@@ -497,6 +512,56 @@ double* NeuralNetwork::Predict(double* input, size_t fln_size)
 	NeuralMultiplication(input, fln_size);
 	layers[0] = temp;
 	return GetLastLayer();
+}
+
+void NeuralNetwork::Test(DataSet &ds)
+{	
+	printf("\nTesting...\n");
+
+	double* d;
+	double count = 0, summ = 0;
+	for (int i = 0; i < ds.test_data_length; ++i) {
+		d = Predict(ds._test_inputs[i], ds.input_length);
+
+		int ind = -1, match = -1;
+		double max = -1;
+
+		for (int j = 0; j < 10; ++j) {
+			if (d[j] > max) {
+				max = d[j];
+				ind = j;
+			}
+			if (ds._test_outputs[i][j] == 1)
+				match = j;
+		}
+
+		if (match == ind)
+			count++;
+	}
+
+	printf("Test: % .4f%%\n", 100 * count / ds.test_data_length);
+
+	count = summ = 0;
+	for (int i = 0; i < ds.train_data_length; ++i) {
+		d = Predict(ds._train_inputs[i], ds.input_length);
+
+		int ind = -1, match = -1;
+		double max = -1;
+
+		for (int j = 0; j < 10; ++j) {
+			if (d[j] > max) {
+				max = d[j];
+				ind = j;
+			}
+			if (ds._train_outputs[i][j] == 1)
+				match = j;
+		}
+
+		if (match == ind)
+			count++;
+	}
+
+	printf("Train: %.4f%%\n", 100 * count / ds.train_data_length);
 }
 
 double* NeuralNetwork::GetLastLayer()
@@ -605,7 +670,7 @@ template<class T> void addit::Shuffle(T** v1, T** v2, size_t len) {
 	}
 }
 
-void addit::LoadX(const char* sourcePath, int len, int slen, double** X) {
+void addit::LoadX(const char* sourcePath, size_t len, size_t slen, double** X) {
 	ifstream read;
 	read.open(sourcePath);
 	int i = 0, j = 0;
@@ -660,7 +725,7 @@ void addit::LoadX(const char* sourcePath, int len, int slen, double** X) {
 		printf("File can't be load... filepath<<%s>>\n", sourcePath);
 }
 
-void addit::LoadY(const char* sourcePath, int len, int slen, double** Y) {
+void addit::LoadY(const char* sourcePath, size_t len, size_t slen, double** Y) {
 	ifstream read;
 	read.open(sourcePath);
 	int i = 0;
@@ -738,15 +803,7 @@ void DataSet::DeleteTestParams()
 	this->test_data_length = 0;
 }
 
-DataSet::DataSet()
-{
-	this->train_data_length = 0;
-	this->input_length = 0;
-	this->output_length = 0;
-
-	this->_train_inputs = nullptr;
-	this->_train_outputs = nullptr;
-}
+DataSet::DataSet(){}
 
 DataSet::DataSet(size_t train_data_length, size_t input_length, size_t output_length)
 {
@@ -786,7 +843,7 @@ void DataSet::SetTestDataParams(size_t test_data_length, size_t input_length, si
 {
 	if (this->input_length != 0 && this->input_length != input_length) return;
 	if (this->output_length != 0 && this->output_length != output_length) return;
-	if (this->train_data_length != 0) return;
+	if (this->test_data_length != 0) return;
 
 	this->test_data_length = test_data_length;
 	this->input_length = input_length;
@@ -804,7 +861,50 @@ void DataSet::SetTestDataParams(size_t test_data_length, size_t input_length, si
 void DataSet::PrintInfo() const
 {
 	printf("Train Data Length: %zu\nTest Data Length: %zu\nInput Length: %zu\nOutput length: %zu\n", 
-		train_data_length, input_length, output_length, test_data_length);
+		train_data_length, test_data_length, input_length, output_length);
+}
+
+void DataSet::PrintData()
+{
+	printf("Train Data\n");
+	for (size_t i = 0; i < this->train_data_length; ++i) {
+		printf("Inputs: ");
+		for (size_t j = 0; j < this->input_length; ++j)
+			printf("%.10f ", this->_train_inputs[i][j]);
+		printf(" Outputs: ");
+		for (size_t j = 0; j < this->output_length; ++j)
+			printf("%.10f ", this->_train_outputs[i][j]);
+		printf("\n");
+	}
+
+	printf("Test Data\n");
+	for (size_t i = 0; i < this->test_data_length; ++i) {
+		printf("Inputs: ");
+		for (size_t j = 0; j < this->input_length; ++j)
+			printf("%.10f ", this->_test_inputs[i][j]);
+		printf(" Outputs: ");
+		for (size_t j = 0; j < this->output_length; ++j)
+			printf("%.10f ", this->_test_outputs[i][j]);
+		printf("\n");
+	}
+}
+
+void DataSet::LoadDataFromFile(const char* data_X_path, const char* data_Y_path, const char* tr_tst_info)
+{
+	addit f;
+
+	if (tr_tst_info == "Train") {
+		f.LoadX(data_X_path, this->train_data_length, this->input_length, this->_train_inputs);
+		f.LoadY(data_Y_path, this->train_data_length, this->output_length, this->_train_outputs);
+	}
+	else if (tr_tst_info == "Test") {		
+		f.LoadX(data_X_path, this->test_data_length, this->input_length, this->_test_inputs);
+		f.LoadY(data_Y_path, this->test_data_length, this->output_length, this->_test_outputs);
+	}
+	else {
+		printf("DataSet load failed...\n");
+		return;
+	}
 }
 
 DataSet::~DataSet()

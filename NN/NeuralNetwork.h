@@ -19,12 +19,13 @@ enum LossFunction { CrossEntropy, SquaredError };
 enum Optimizer { Adam, GradientDescent };
 
 class DataSet {
-	double **_train_inputs, **_train_outputs;
-	double **_test_inputs, **_test_outputs;
-
-	size_t train_data_length, input_length, output_length, test_data_length;
+private:	
 	void DeleteTrainParams();
 	void DeleteTestParams();
+protected:
+	size_t train_data_length = 0, input_length = 0, output_length = 0, test_data_length = 0;
+	double **_train_inputs = nullptr, **_train_outputs = nullptr;
+	double **_test_inputs = nullptr, **_test_outputs = nullptr;
 public:
 	DataSet();
 	DataSet(size_t train_data_length, size_t input_length, size_t output_length);
@@ -32,28 +33,31 @@ public:
 	void SetTrainDataParams(size_t train_data_length, size_t input_length, size_t output_length);
 	void SetTestDataParams(size_t test_data_length, size_t input_length, size_t output_length);
 	void PrintInfo() const;
+	void PrintData();
+	void LoadDataFromFile(const char* data_X_path, const char* data_Y_path, const char* tr_tst);
 	~DataSet();
+
+	friend class NeuralNetwork;
 };
 
 class addit {
 public:
-	double SigmoidFunction(double x);
-	void SoftMaxFunction(double* layer, size_t len);
-	int _strcpy(char* target, const char* source, int st);
-	int _strcpy(char* target, long long num, int st);
-	char* GetTimeFromMilliseconds(long long millisecond);
-	void plot(double* arr, size_t size);
-	template<class T> void Shuffle(T** v1, T** v2, size_t len);
-	void LoadX(const char* sourcePath, int len, int slen, double** X);
-	void LoadY(const char* sourcePath, int len, int slen, double** Y);
-	double to_double(const char* str);
-	void printString(const char* str, bool new_line = false);
+	static double SigmoidFunction(double x);
+	static void SoftMaxFunction(double* layer, size_t len);
+	static int _strcpy(char* target, const char* source, int st);
+	static int _strcpy(char* target, long long num, int st);
+	static char* GetTimeFromMilliseconds(long long millisecond);
+	static void plot(double* arr, size_t size);
+	template<class T> static void Shuffle(T** v1, T** v2, size_t len);
+	static void LoadX(const char* sourcePath, size_t len, size_t slen, double** X);
+	static void LoadY(const char* sourcePath, size_t len, size_t slen, double** Y);
+	static double to_double(const char* str);
+	static void printString(const char* str, bool new_line = false);
 };
 
 class NeuralNetwork
 {
 private:
-	addit functions;
 	size_t layers_count, threads_count;
 	size_t* neurons_per_layer;
 	double* temp;
@@ -89,5 +93,8 @@ public:
 
 	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt); //
 	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print = false);
+	void Train(DataSet &ds, size_t lvl, size_t batch, double alpha, bool print = false);
 	double* Predict(double* input, size_t fln_size);
+
+	void Test(DataSet &ds);
 };
