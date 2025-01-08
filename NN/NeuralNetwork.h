@@ -19,7 +19,8 @@ enum LossFunction { CrossEntropy, SquaredError };
 enum Optimizer { Adam, GradientDescent };
 
 class DataSet {
-private:	
+private:
+	size_t train_data_index = 0, test_data_index;
 	void DeleteTrainParams();
 	void DeleteTestParams();
 protected:
@@ -35,6 +36,8 @@ public:
 	void PrintInfo() const;
 	void PrintData();
 	void LoadDataFromFile(const char* data_X_path, const char* data_Y_path, const char* tr_tst);
+	void AddTrainCase(double* in_case, size_t in_length, double* out_case, size_t out_length);
+	void AddTestCase(double* in_case, size_t in_length, double* out_case, size_t out_length);
 	~DataSet();
 
 	friend class NeuralNetwork;
@@ -96,5 +99,6 @@ public:
 	void Train(DataSet &ds, size_t lvl, size_t batch, double alpha, bool print = false);
 	double* Predict(double* input, size_t fln_size);
 
-	void Test(DataSet &ds);
+	void Test(DataSet& ds);
+	void Save(std::istream& cin);
 };

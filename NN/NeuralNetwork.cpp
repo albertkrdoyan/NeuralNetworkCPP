@@ -72,13 +72,10 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 	if (layers == nullptr || glayers == nullptr) return -1;
 
 	for (size_t i = 0; i < layers_count; ++i) {
-		layers[i] = new double[neurons_per_layer[i]];
-		glayers[i] = new double[neurons_per_layer[i]];
+		layers[i] = new double[neurons_per_layer[i]] {0};
+		glayers[i] = new double[neurons_per_layer[i]] {0};
 
 		if (layers[i] == nullptr || glayers[i] == nullptr) return -1;
-
-		for (size_t j = 0; j < neurons_per_layer[i]; ++j)
-			glayers[i][j] = layers[i][j] = .0f;
 	}
 
 	weights = new double** [layers_count - 1];
@@ -101,17 +98,15 @@ int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFu
 		if (weights[i] == nullptr || gradients[i] == nullptr || moment1[i] == nullptr || moment2[i] == nullptr) return -1;
 
 		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
-			weights[i][j] = new double[neurons_per_layer[i] + 1];
-			gradients[i][j] = new double[neurons_per_layer[i] + 1];
-			moment1[i][j] = new double[neurons_per_layer[i] + 1];
-			moment2[i][j] = new double[neurons_per_layer[i] + 1];
+			weights[i][j] = new double[neurons_per_layer[i] + 1] {0};
+			gradients[i][j] = new double[neurons_per_layer[i] + 1] {0};
+			moment1[i][j] = new double[neurons_per_layer[i] + 1] {0};
+			moment2[i][j] = new double[neurons_per_layer[i] + 1] {0};
 
 			if (weights[i][j] == nullptr || gradients[i][j] == nullptr || moment1[i][j] == nullptr || moment2[i][j] == nullptr) return -1;
 
-			for (size_t k = 0; k < neurons_per_layer[i] + 1; ++k) {
+			for (size_t k = 0; k < neurons_per_layer[i] + 1; ++k)
 				weights[i][j][k] = static_cast<double>(dist(gen));
-				gradients[i][j][k] = moment1[i][j][k] = moment2[i][j][k] = .0f;
-			}
 		}
 	}
 
@@ -175,65 +170,37 @@ void NeuralNetwork::PrintInfo()
 	for (size_t i = 0; i < layers_count; ++i)
 		printf("%zu, ", neurons_per_layer[i]);
 	printf("\nMain activation function: ");
-	switch (act)
-	{
-	case Linear:
+	if (act == Linear)
 		printf("Linear");
-		break;
-	case ReLU:
+	else if (act == ReLU)
 		printf("ReLU");
-		break;
-	case Sigmoid:
+	else if (act == Sigmoid)
 		printf("Sigmoid");
-		break;
-	case SoftMax:
+	else if (act == SoftMax)
 		printf("SoftMax");
-		break;
-	default:
-		break;
-	}
+	
 	printf("\nLast layer activation function: ");
-	switch (llact)
-	{
-	case Linear:
+	if (llact == Linear)
 		printf("Linear");
-		break;
-	case ReLU:
+	else if (llact == ReLU)
 		printf("ReLU");
-		break;
-	case Sigmoid:
+	else if (llact == Sigmoid)
 		printf("Sigmoid");
-		break;
-	case SoftMax:
+	else if (llact == SoftMax)
 		printf("SoftMax");
-		break;
-	default:
-		break;
-	}
+
 	printf("\nLoss function: ");
-	switch (loss)
-	{
-	case CrossEntropy:
+	if (loss == CrossEntropy)
 		printf("Cross Entropy");
-		break;
-	case SquaredError:
+	else if (loss == SquaredError)
 		printf("Squared Error");
-		break;
-	default:
-		break;
-	}
+
 	printf("\nOptimization method: ");
-	switch (opt)
-	{
-	case Adam:
+	if (opt == Adam)
 		printf("Adam");
-		break;
-	case GradientDescent:
+	else if (opt == GradientDescent)
 		printf("Gradient Descent");
-		break;
-	default:
-		break;
-	}
+	
 	printf("\n");
 }
 
@@ -283,7 +250,7 @@ void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
 
 void NeuralNetwork::LoadWeights(const char* path)
 {
-	size_t n = 0, i = 0, j = 0;
+	size_t n = 0, i = 0, j = 0, ind = 0;
 
 	ifstream WLoad;
 	WLoad.open(path);
@@ -291,7 +258,6 @@ void NeuralNetwork::LoadWeights(const char* path)
 	if (WLoad.is_open()) {
 		char _char = '\0';
 		char buff[32]{};
-		size_t ind = 0;
 
 		while (true) {
 			_char = WLoad.get();
@@ -450,15 +416,13 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 	if (errors != nullptr)
 		delete[] errors;
 
-	errors = new double[size * lvl];
+	errors = new double[size * lvl] {0};
 	size_t err_index = 0;
 
 	start = std::chrono::high_resolution_clock::now();
 	for (size_t l = 0; l < lvl; ++l) {
 		if (l != 0) addit::Shuffle(inputs, ys, train_size);
 		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));			
-			errors[err_index] = 0;
-
 			//#pragma omp parallel for shared(layers, weights, neurons_per_layer, errors, glayers, gradients) private(btch)
 			for (btch = i * batch; btch < (i == size - 1 ? train_size : (i + 1) * batch); ++btch) {
 				NeuralMultiplication(inputs[btch], input_length);
@@ -495,7 +459,7 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 	auto end_ = std::chrono::high_resolution_clock::now();
 	auto duration_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
 	char* dur_ = addit::GetTimeFromMilliseconds(duration_);
-	printf("Train compl. : ");
+	printf("--- Train compl. : ");
 	addit::printString(dur_, true);
 	delete[] dur_;
 
@@ -514,7 +478,7 @@ double* NeuralNetwork::Predict(double* input, size_t fln_size)
 	return GetLastLayer();
 }
 
-void NeuralNetwork::Test(DataSet &ds)
+void NeuralNetwork::Test(DataSet& ds)
 {	
 	printf("\nTesting...\n");
 
@@ -562,6 +526,20 @@ void NeuralNetwork::Test(DataSet &ds)
 	}
 
 	printf("Train: %.4f%%\n", 100 * count / ds.train_data_length);
+}
+
+void NeuralNetwork::Save(std::istream& cin)
+{
+	printf("Save weights?: (y/n)");
+	char save = '\0';
+	cin >> save;
+
+	if (save == 'y') {
+		char save_file_name[101];
+		printf("Save as(max 100 characters): ");
+		cin >> save_file_name;
+		SaveWeights(save_file_name);
+	}
 }
 
 double* NeuralNetwork::GetLastLayer()
@@ -703,7 +681,7 @@ void addit::LoadX(const char* sourcePath, size_t len, size_t slen, double** X) {
 					}
 				}
 
-				if (_c == -1)
+				if (_c == -1 || i == len - 1)
 					break;
 
 				num[0] = num[1] = num[2] = 0;
@@ -733,7 +711,7 @@ void addit::LoadY(const char* sourcePath, size_t len, size_t slen, double** Y) {
 	if (read.is_open()) {
 		char _c = '\0';
 
-		while ((_c = read.get()) != -1)
+		while (i != len && (_c = read.get()) != -1)
 			Y[i++][_c - '0'] = 1.0f;
 
 		read.close();
@@ -834,8 +812,8 @@ void DataSet::SetTrainDataParams(size_t train_data_length, size_t input_length, 
 	this->_train_outputs = new double* [train_data_length];
 
 	for (size_t i = 0; i < train_data_length; ++i) {
-		this->_train_inputs[i] = new double[input_length] {};
-		this->_train_outputs[i] = new double[output_length] {};
+		this->_train_inputs[i] = new double[input_length] {0};
+		this->_train_outputs[i] = new double[output_length] {0};
 	}
 }
 
@@ -853,8 +831,8 @@ void DataSet::SetTestDataParams(size_t test_data_length, size_t input_length, si
 	this->_test_outputs = new double* [test_data_length];
 
 	for (size_t i = 0; i < test_data_length; ++i) {
-		this->_test_inputs[i] = new double[input_length] {};
-		this->_test_outputs[i] = new double[output_length] {};
+		this->_test_inputs[i] = new double[input_length] {0};
+		this->_test_outputs[i] = new double[output_length] {0};
 	}
 }
 
@@ -891,20 +869,56 @@ void DataSet::PrintData()
 
 void DataSet::LoadDataFromFile(const char* data_X_path, const char* data_Y_path, const char* tr_tst_info)
 {
-	addit f;
+	auto start = std::chrono::high_resolution_clock::now();
 
 	if (tr_tst_info == "Train") {
-		f.LoadX(data_X_path, this->train_data_length, this->input_length, this->_train_inputs);
-		f.LoadY(data_Y_path, this->train_data_length, this->output_length, this->_train_outputs);
+		printf("Loading Train data\n");
+		addit::LoadX(data_X_path, this->train_data_length, this->input_length, this->_train_inputs);
+		addit::LoadY(data_Y_path, this->train_data_length, this->output_length, this->_train_outputs);
 	}
-	else if (tr_tst_info == "Test") {		
-		f.LoadX(data_X_path, this->test_data_length, this->input_length, this->_test_inputs);
-		f.LoadY(data_Y_path, this->test_data_length, this->output_length, this->_test_outputs);
+	else if (tr_tst_info == "Test") {
+		printf("Loading Test data\n");
+		addit::LoadX(data_X_path, this->test_data_length, this->input_length, this->_test_inputs);
+		addit::LoadY(data_Y_path, this->test_data_length, this->output_length, this->_test_outputs);
 	}
 	else {
 		printf("DataSet load failed...\n");
 		return;
 	}
+	auto end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	char* dur = addit::GetTimeFromMilliseconds(duration);
+	printf("--- Download compl. : ");
+	addit::printString(dur, true);
+	delete[] dur;
+}
+
+void DataSet::AddTrainCase(double* in_case, size_t in_length, double* out_case, size_t out_length)
+{
+	if (this->train_data_index == this->train_data_length) return;
+	if (this->input_length != in_length || this->output_length != out_length) return;
+
+	for (size_t i = 0; i < in_length; ++i)
+		this->_train_inputs[this->train_data_index][i] = in_case[i];
+
+	for (size_t i = 0; i < out_length; ++i)
+		this->_train_outputs[this->train_data_index][i] = out_case[i];
+
+	++this->train_data_index;
+}
+
+void DataSet::AddTestCase(double* in_case, size_t in_length, double* out_case, size_t out_length)
+{
+	if (this->test_data_index == this->test_data_length) return;
+	if (this->input_length != in_length || this->output_length != out_length) return;
+
+	for (size_t i = 0; i < in_length; ++i)
+		this->_test_inputs[this->test_data_index][i] = in_case[i];
+
+	for (size_t i = 0; i < out_length; ++i)
+		this->_test_outputs[this->test_data_index][i] = out_case[i];
+
+	++this->test_data_index;
 }
 
 DataSet::~DataSet()
@@ -913,4 +927,4 @@ DataSet::~DataSet()
 	DeleteTestParams();
 
 	this->input_length = this->output_length = 0;
-}
+}	
