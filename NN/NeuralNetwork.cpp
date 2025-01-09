@@ -185,7 +185,7 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 
 void NeuralNetwork::PrintInfo()
 {
-	printf("Threads count: %zu\nLayers count %zu: ", threads_count, layers_count);
+	printf("\nThreads count: %zu\nLayers count %zu: ", threads_count, layers_count);
 	for (size_t i = 0; i < layers_count; ++i)
 		printf("%zu, ", neurons_per_layer[i]);
 	printf("\nMain activation function: ");
@@ -883,7 +883,7 @@ void DataSet::SetTestDataParams(size_t test_data_length, size_t input_length, si
 
 void DataSet::PrintInfo() const
 {
-	printf("Train Data Length: %zu\nTest Data Length: %zu\nInput Length: %zu\nOutput length: %zu\n", 
+	printf("\nTrain Data Length: %zu\nTest Data Length: %zu\nInput Length: %zu\nOutput length: %zu\n", 
 		train_data_length, test_data_length, input_length, output_length);
 }
 

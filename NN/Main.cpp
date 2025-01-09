@@ -32,10 +32,12 @@ int digits2()
 	}
 	//digit_rec_model_perceptron.LoadWeights("Digits2\\digits_784_128_10_adam_0d0001.txt");
 
-	digit_rec_model_perceptron.Train(digit_rec_dataset, 20, 32, 0.001, true);
-	digit_rec_model_perceptron.Test(digit_rec_dataset);
+	digit_rec_dataset.PrintInfo();
+	digit_rec_model_perceptron.PrintInfo();
 
-	//digit_rec_model_perceptron.Save(std::cin);
+	digit_rec_model_perceptron.Train(digit_rec_dataset, 25, 32, 0.001, true);
+	digit_rec_model_perceptron.Test(digit_rec_dataset);
+	digit_rec_model_perceptron.Save(std::cin);
 
 	system("plot.py");
 	return 0;

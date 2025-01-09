@@ -34,9 +34,9 @@
               "Title": "Main.cpp",
               "DocumentMoniker": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\Main.cpp",
               "RelativeDocumentMoniker": "NN\\Main.cpp",
-              "ToolTip": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\Main.cpp*",
-              "RelativeToolTip": "NN\\Main.cpp*",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAABgAAAApAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\Main.cpp",
+              "RelativeToolTip": "NN\\Main.cpp",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAACMAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-05T13:28:14.647Z",
               "EditorCaption": ""
@@ -49,7 +49,7 @@
               "RelativeDocumentMoniker": "NN\\NeuralNetwork.cpp",
               "ToolTip": "C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\NN\\NeuralNetwork.cpp",
               "RelativeToolTip": "NN\\NeuralNetwork.cpp",
-              "ViewState": "AgIAAJcBAAAAAAAAAAAvwHABAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAK0AAAAAAAAAAAAvwLsAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-01-03T22:34:51.328Z",
               "EditorCaption": ""
@@ -64,8 +64,7 @@
               "RelativeToolTip": "NN\\NeuralNetwork.h",
               "ViewState": "AgIAAEYAAAAAAAAAAAAvwFIAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-01-05T19:22:06.326Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-05T19:22:06.326Z"
             }
           ]
         },
