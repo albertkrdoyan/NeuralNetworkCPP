@@ -7,20 +7,6 @@ int CtoF();
 
 int main() {
 	// Test yourself
-
-	/*DataSet exp_ds(1, 5, 2, 2);
-	double inp[5] = {0.5, 0.1, 0.5, 0.6, 0.08};
-	double outp[8] = { 0.5, 0.5 };
-	exp_ds.AddTrainCase(inp, 5, outp, 2);
-
-	NeuralNetwork exp_model;
-	if (exp_model.Init({ 5, 8, 10, 2 }, { 0, 0, 0.5, 0 }, Linear, SoftMax, CrossEntropy, Adam) == -1) {
-		printf("no init.\n");
-		return 0;
-	}
-
-	exp_model.Train(exp_ds, 1, 1, 0.1);*/
-	//exp_model.PrintDropout();
 	digits2();
 	system("pause");
 	return 0;
@@ -36,7 +22,7 @@ int digits2()
 
 	NeuralNetwork digit_rec_model_perceptron;
 	if (digit_rec_model_perceptron.Init(
-		{ img_len, 128, result_len }, { 0, 0.2, 0 },
+		{ img_len, 128, result_len }, { 0, 0.25, 0 },
 		ActivationFunction::ReLU,
 		ActivationFunction::SoftMax,
 		LossFunction::CrossEntropy,
@@ -46,7 +32,7 @@ int digits2()
 	}
 	//digit_rec_model_perceptron.LoadWeights("Digits2\\digits_784_128_10_adam_0d0001.txt");
 
-	digit_rec_model_perceptron.Train(digit_rec_dataset, 5, 32, 0.1, true);
+	digit_rec_model_perceptron.Train(digit_rec_dataset, 20, 32, 0.001, true);
 	digit_rec_model_perceptron.Test(digit_rec_dataset);
 
 	//digit_rec_model_perceptron.Save(std::cin);

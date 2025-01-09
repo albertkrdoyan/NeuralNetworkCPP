@@ -240,33 +240,27 @@ void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size, bool use_
 				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
 
 			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
-
-			// Apply dropout during training ///// look for this part!!!! <------
-			if (use_dropout && dropout_info[i] > 0)
-				layers[i][j] *= dropout[i][j];
 		}
 
-		Activation(i, (i != layers_count - 1 ? act : llact));
+		Activation(i, (i != layers_count - 1 ? act : llact), use_dropout);
 	}
 }
 
-void NeuralNetwork::Activation(size_t layer, ActivationFunction act) {
-	size_t i = 0;
-	switch (act)
-	{
-	case ReLU:
-		for (i = 0; i < neurons_per_layer[layer]; ++i)
+void NeuralNetwork::Activation(size_t layer, ActivationFunction act, bool use_dropout) {	
+	if (act == ReLU) {
+		for (size_t i = 0; i < neurons_per_layer[layer]; ++i) {
 			if (layers[layer][i] < 0) layers[layer][i] = 0;
-		break;
-	case Sigmoid:
-		for (i = 0; i < neurons_per_layer[layer]; ++i)
+			if (use_dropout) layers[layer][i] *= dropout[layer][i];
+		}
+	}
+	else if (act == Sigmoid) {
+		for (size_t i = 0; i < neurons_per_layer[layer]; ++i) {
 			layers[layer][i] = addit::SigmoidFunction(layers[layer][i]);
-		break;
-	case SoftMax:
+			if (use_dropout) layers[layer][i] *= dropout[layer][i];
+		}
+	}
+	else if (act == SoftMax) {
 		addit::SoftMaxFunction(layers[layer], neurons_per_layer[layer]);
-		break;
-	default:
-		break;
 	}
 }
 
@@ -517,7 +511,7 @@ void NeuralNetwork::Train(DataSet &ds, size_t lvl, size_t batch, double alpha, b
 
 double* NeuralNetwork::Predict(double* input, size_t fln_size)
 {
-	NeuralMultiplication(input, fln_size);
+	NeuralMultiplication(input, fln_size, false);
 	layers[0] = temp;
 	return GetLastLayer();
 }

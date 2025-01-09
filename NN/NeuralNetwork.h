@@ -80,7 +80,7 @@ private:
 	Optimizer opt;
 
 	void NeuralMultiplication(double* input, size_t fln_size, bool use_dropout = false);
-	void Activation(size_t layer, ActivationFunction);
+	void Activation(size_t layer, ActivationFunction, bool use_dropout);
 	void ActDerivative(size_t layer, ActivationFunction);
 	void BackProp(double* y, size_t y_size, bool cfl = false);	
 	void Optimizing(double, double);
