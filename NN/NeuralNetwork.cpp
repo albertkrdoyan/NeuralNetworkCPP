@@ -58,24 +58,34 @@ NeuralNetwork::~NeuralNetwork()
 	delete[] glayers;
 }
 
-int NeuralNetwork::Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
+int NeuralNetwork::Init(vector<size_t> npl, vector<double> _dropout, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
 	if (npl.size() == 0) return -1;
 
 	layers_count = npl.size();
+	
 	neurons_per_layer = new size_t[layers_count];
-	for (size_t i = 0; i < layers_count; ++i)
+	dropout_info = new double[layers_count];
+
+	for (size_t i = 0; i < layers_count; ++i) {
 		neurons_per_layer[i] = (int)npl[i];
+		dropout_info[i] = _dropout[i];
+	}
 
 	layers = new double* [layers_count];
 	glayers = new double* [layers_count];
+	dropout = new double* [layers_count];
 
 	if (layers == nullptr || glayers == nullptr) return -1;
 
 	for (size_t i = 0; i < layers_count; ++i) {
 		layers[i] = new double[neurons_per_layer[i]] {0};
 		glayers[i] = new double[neurons_per_layer[i]] {0};
+		dropout[i] = new double[neurons_per_layer[i]] {0};
 
-		if (layers[i] == nullptr || glayers[i] == nullptr) return -1;
+		if (layers[i] == nullptr || glayers[i] == nullptr || dropout[i] == nullptr) return -1;
+
+		for (size_t j = 0; j < (1 - dropout_info[i]) * neurons_per_layer[i]; ++j)
+			dropout[i][j] = 1 / (1 - dropout_info[i]);
 	}
 
 	weights = new double** [layers_count - 1];
@@ -137,6 +147,15 @@ void NeuralNetwork::PrintWeights() {
 			printf(" ]\n");
 		}
 		printf("]\n");
+	}
+}
+
+void NeuralNetwork::PrintDropout()
+{
+	for (size_t i = 0; i < layers_count; ++i) {
+		for (size_t j = 0; j < neurons_per_layer[i]; ++j)
+			printf("%.5f ", dropout[i][j]);
+		printf("\n");
 	}
 }
 
@@ -204,7 +223,7 @@ void NeuralNetwork::PrintInfo()
 	printf("\n");
 }
 
-void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size) {
+void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size, bool use_dropout) {
 	if ((int)fln_size != neurons_per_layer[0]) return;
 
 	size_t i = 0, j = 0, k = 0;
@@ -217,11 +236,14 @@ void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size) {
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j) {
 			layers[i][j] = 0.f;
 
-			//#pragma omp simd reduction(+:sum)
 			for (size_t k = 0; k < neurons_per_layer[i - 1]; ++k)
 				layers[i][j] += layers[i - 1][k] * weights[i - 1][j][k];
 
 			layers[i][j] += weights[i - 1][j][neurons_per_layer[i - 1]];
+
+			// Apply dropout during training ///// look for this part!!!! <------
+			if (use_dropout && dropout_info[i] > 0)
+				layers[i][j] *= dropout[i][j];
 		}
 
 		Activation(i, (i != layers_count - 1 ? act : llact));
@@ -392,13 +414,28 @@ void NeuralNetwork::ActDerivative(size_t layer, ActivationFunction act) {
 
 	if (act == ReLU) {
 		//#pragma omp parallel for
-		for (i = 0; i < neurons_per_layer[layer]; ++i)
-			glayers[layer][i] *= (layers[layer][i] > 0 ? 1 : 0);
+		for (i = 0; i < neurons_per_layer[layer]; ++i) {
+			if (dropout[layer][i] == 0)
+				glayers[layer][i] = 0;
+			else
+				glayers[layer][i] *= (layers[layer][i] > 0 ? 1 : 0);
+		}
 	}
 	else if (act == Sigmoid) {
 		//#pragma omp parallel for
-		for (i = 0; i < neurons_per_layer[layer]; ++i)
-			glayers[layer][i] *= layers[layer][i] * (1 - layers[layer][i]);
+		for (i = 0; i < neurons_per_layer[layer]; ++i) {
+			if (dropout[layer][i] == 0)
+				glayers[layer][i] = 0;
+			else
+				glayers[layer][i] *= layers[layer][i] * (1 - layers[layer][i]);
+		}
+	}
+	else if (act == Linear) {
+		//#pragma omp parallel for
+		for (i = 0; i < neurons_per_layer[layer]; ++i) {
+			if (dropout[layer][i] == 0)
+				glayers[layer][i] = 0;
+		}
 	}
 }
 
@@ -421,11 +458,18 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 
 	start = std::chrono::high_resolution_clock::now();
 	for (size_t l = 0; l < lvl; ++l) {
-		if (l != 0) addit::Shuffle(inputs, ys, train_size);
+		if (l != 0) addit::Shuffle2(inputs, ys, train_size);
+
 		for (size_t i = 0; i < size; ++i) {//printf("{%zu - %zu}\n", i * batch, (i == size - 1 ? inputs.size() : (i + 1) * batch));			
 			//#pragma omp parallel for shared(layers, weights, neurons_per_layer, errors, glayers, gradients) private(btch)
+			
+			for (size_t i = 0; i < layers_count; ++i) {
+				if (dropout_info[i] != 0)
+					addit::Shuffle1(dropout[i], neurons_per_layer[i]);
+			}
+
 			for (btch = i * batch; btch < (i == size - 1 ? train_size : (i + 1) * batch); ++btch) {
-				NeuralMultiplication(inputs[btch], input_length);
+				NeuralMultiplication(inputs[btch], input_length, true);
 
 				if (loss == SquaredError) {
 					for (err = 0; err < output_length; ++err) {
@@ -639,13 +683,20 @@ void addit::plot(double* arr, size_t size) {
 	//system("plot.py");
 }
 
-template<class T> void addit::Shuffle(T** v1, T** v2, size_t len) {
+template<class T> void addit::Shuffle2(T** v1, T** v2, size_t len) {
 	for (size_t i = 0; i < len - 1; ++i) {
 		size_t j = i + rand() % (len - i);
 
 		std::swap(v1[i], v1[j]);
 		std::swap(v2[i], v2[j]);
 	}
+}
+
+template<class T>
+void addit::Shuffle1(T* v, size_t len)
+{
+	for (size_t i = 0; i < len - 1; ++i)
+		std::swap(v[i], v[i + rand() % (len - i)]);
 }
 
 void addit::LoadX(const char* sourcePath, size_t len, size_t slen, double** X) {
@@ -790,7 +841,7 @@ DataSet::DataSet(size_t train_data_length, size_t input_length, size_t output_le
 	SetTrainDataParams(train_data_length, input_length, output_length);
 }
 
-DataSet::DataSet(size_t train_data_length, size_t test_data_length, size_t input_length, size_t output_length)
+DataSet::DataSet(size_t train_data_length, size_t input_length, size_t output_length, size_t test_data_length)
 {
 	if (this->train_data_length != 0) return;
 

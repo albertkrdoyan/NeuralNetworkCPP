@@ -30,7 +30,7 @@ protected:
 public:
 	DataSet();
 	DataSet(size_t train_data_length, size_t input_length, size_t output_length);
-	DataSet(size_t train_data_length, size_t test_data_length, size_t input_length, size_t output_length);
+	DataSet(size_t train_data_length, size_t input_length, size_t output_length, size_t test_data_length);
 	void SetTrainDataParams(size_t train_data_length, size_t input_length, size_t output_length);
 	void SetTestDataParams(size_t test_data_length, size_t input_length, size_t output_length);
 	void PrintInfo() const;
@@ -51,7 +51,8 @@ public:
 	static int _strcpy(char* target, long long num, int st);
 	static char* GetTimeFromMilliseconds(long long millisecond);
 	static void plot(double* arr, size_t size);
-	template<class T> static void Shuffle(T** v1, T** v2, size_t len);
+	template<class T> static void Shuffle2(T** v1, T** v2, size_t len);
+	template<class T> static void Shuffle1(T* v, size_t len);
 	static void LoadX(const char* sourcePath, size_t len, size_t slen, double** X);
 	static void LoadY(const char* sourcePath, size_t len, size_t slen, double** Y);
 	static double to_double(const char* str);
@@ -61,10 +62,14 @@ public:
 class NeuralNetwork
 {
 private:
+	double betta1, betta2, betta1toTpower, betta2toTpower, alpha_t;
 	size_t layers_count, threads_count;
 	size_t* neurons_per_layer;
 	double* temp;
+	double* errors;
+	double* dropout_info;
 	double** layers;
+	double** dropout;
 	double** glayers;
 	double*** weights;
 	double*** gradients;
@@ -73,28 +78,29 @@ private:
 	ActivationFunction act, llact;
 	LossFunction loss;
 	Optimizer opt;
-	double* errors;
-	double betta1, betta2, betta1toTpower, betta2toTpower, alpha_t;
 
-	void NeuralMultiplication(double* input, size_t fln_size);
+	void NeuralMultiplication(double* input, size_t fln_size, bool use_dropout = false);
 	void Activation(size_t layer, ActivationFunction);
 	void ActDerivative(size_t layer, ActivationFunction);
 	void BackProp(double* y, size_t y_size, bool cfl = false);	
 	void Optimizing(double, double);
+	void PrintLayers(size_t);
+	void PrintWeights();
+	
+	void PrintGradients(const char*, size_t);
 	double* GetLastLayer();
 public:
 	NeuralNetwork();
 	~NeuralNetwork();
 	
-	void PrintLayers(size_t);
-	void PrintWeights();
-	void PrintGradients(const char*, size_t); 
+	void PrintDropout();
+
 	void PrintInfo(); 
 
 	void LoadWeights(const char*);
 	void SaveWeights(const char*);
 
-	int Init(vector<size_t> npl, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt); //
+	int Init(vector<size_t> npl, vector<double> dropout, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt); //
 	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print = false);
 	void Train(DataSet &ds, size_t lvl, size_t batch, double alpha, bool print = false);
 	double* Predict(double* input, size_t fln_size);
