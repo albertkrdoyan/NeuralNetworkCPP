@@ -22,7 +22,7 @@ int digits2()
 
 	NeuralNetwork digit_rec_model_perceptron;
 	if (digit_rec_model_perceptron.Init(
-		{ img_len, 128, result_len }, { 0, 0, 0 },
+		{ img_len, 128, result_len }, { 0, 0.25, 0 },
 		ActivationFunction::ReLU,
 		ActivationFunction::SoftMax,
 		LossFunction::CrossEntropy,
@@ -30,12 +30,12 @@ int digits2()
 	) == -1) {
 		printf("no init.\n"); return 0;
 	}
-	//digit_rec_model_perceptron.LoadWeights("Digits2\\digits_784_128_10_adam_0d0001.txt");
+	digit_rec_model_perceptron.LoadWeights("C:\\Users\\alber\\Desktop\\GitHub\\NeuralNetworkCPP2025\\x64\\Debug\\dabest.txt");
 
 	digit_rec_dataset.PrintInfo();
 	digit_rec_model_perceptron.PrintInfo();
 
-	digit_rec_model_perceptron.Train(digit_rec_dataset, 25, 32, 0.001, true);
+	digit_rec_model_perceptron.Train(digit_rec_dataset, 10, 32, 0.0001, true);
 	digit_rec_model_perceptron.Test(digit_rec_dataset);
 	digit_rec_model_perceptron.Save(std::cin);
 
