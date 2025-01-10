@@ -22,7 +22,7 @@ int digits2()
 
 	NeuralNetwork digit_rec_model_perceptron;
 	if (digit_rec_model_perceptron.Init(
-		{ img_len, 128, result_len }, { 0, 0.25, 0 },
+		{ img_len, 128, result_len }, { 0, 0, 0 },
 		ActivationFunction::ReLU,
 		ActivationFunction::SoftMax,
 		LossFunction::CrossEntropy,

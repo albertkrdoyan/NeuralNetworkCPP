@@ -1,4 +1,5 @@
 ﻿  Main.cpp
   NeuralNetwork.cpp
-  Generating Code...
-  NN.vcxproj -> C:\Users\alber\Desktop\GitHub\NeuralNetworkCPP2025\x64\Debug\NN.exe
+  Создание кода...
+  LINK : не найден или не выполнена сборка C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe при последней инкрементной компоновке; выполняется полная компоновка
+  NN.vcxproj -> C:\Users\User\source\repos\NeuralNetworkCPP\x64\Debug\NN.exe

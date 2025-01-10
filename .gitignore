@@ -3,3 +3,9 @@
 /.vs
 *.json
 /NN/Digits
+.vs/NN/v17/.suo
+*.db
+*.recipe
+*.ilk
+*.log
+*.tlog
