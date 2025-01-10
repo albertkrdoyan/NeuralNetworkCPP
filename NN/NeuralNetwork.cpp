@@ -1,6 +1,6 @@
 #include "NeuralNetwork.h"
 
-NeuralNetwork::NeuralNetwork() {
+NeuralNetworkP::NeuralNetworkP() {
 	const auto processor_count = std::thread::hardware_concurrency();
 
 	temp = nullptr;
@@ -12,6 +12,8 @@ NeuralNetwork::NeuralNetwork() {
 	moment2 = nullptr;
 	neurons_per_layer = nullptr;
 	errors = nullptr;
+	dropout = nullptr;
+	dropout_info = nullptr;
 
 	this->betta1 = 0.9;
 	this->betta2 = 0.999;
@@ -25,7 +27,7 @@ NeuralNetwork::NeuralNetwork() {
 	this->opt = GradientDescent;
 }
 
-NeuralNetwork::~NeuralNetwork()
+NeuralNetworkP::~NeuralNetworkP()
 {
 	if (layers_count == 0) return;
 
@@ -33,32 +35,21 @@ NeuralNetwork::~NeuralNetwork()
 		delete[] errors;
 
 	for (size_t i = 0; i < layers_count - 1; ++i) {
-		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
-			delete[] weights[i][j];
-			delete[] gradients[i][j];
-			delete[] moment1[i][j];
-			delete[] moment2[i][j];
-		}
-		delete[] weights[i];
-		delete[] gradients[i];
-		delete[] moment1[i];
-		delete[] moment2[i];
-	}
-	delete[] weights;
-	delete[] gradients;
-	delete[] moment1;
-	delete[] moment2;
-	delete[] neurons_per_layer;
+		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j)
+			delete[] weights[i][j], gradients[i][j], moment1[i][j], moment2[i][j];
 
-	for (size_t i = 0; i < layers_count; ++i) {
-		delete[] layers[i];
-		delete[] glayers[i];
+		delete[] weights[i], gradients[i], moment1[i], moment2[i];
 	}
-	delete[] layers;
-	delete[] glayers;
+
+	delete[] weights, gradients, moment1, moment2, neurons_per_layer;
+
+	for (size_t i = 0; i < layers_count; ++i)
+		delete[] layers[i], glayers[i];
+
+	delete[] layers, glayers;
 }
 
-int NeuralNetwork::Init(vector<size_t> npl, vector<double> _dropout, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
+int NeuralNetworkP::Init(vector<size_t> npl, vector<double> _dropout, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt) {
 	if (npl.size() == 0) return -1;
 
 	layers_count = npl.size();
@@ -128,7 +119,7 @@ int NeuralNetwork::Init(vector<size_t> npl, vector<double> _dropout, ActivationF
 	return 0;
 }
 
-void NeuralNetwork::PrintLayers(size_t layer) {
+void NeuralNetworkP::PrintLayers(size_t layer) {
 	for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
 		printf("Layer [%zu]: ", i);
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j)
@@ -137,7 +128,7 @@ void NeuralNetwork::PrintLayers(size_t layer) {
 	}
 }
 
-void NeuralNetwork::PrintWeights() {
+void NeuralNetworkP::PrintWeights() {
 	for (size_t i = 0; i < layers_count - 1; ++i) {
 		printf("Weight [%zu]\n[\n", i);
 		for (size_t j = 0; j < neurons_per_layer[i + 1]; ++j) {
@@ -150,7 +141,7 @@ void NeuralNetwork::PrintWeights() {
 	}
 }
 
-void NeuralNetwork::PrintDropout()
+void NeuralNetworkP::PrintDropout()
 {
 	for (size_t i = 0; i < layers_count; ++i) {
 		for (size_t j = 0; j < neurons_per_layer[i]; ++j)
@@ -159,7 +150,7 @@ void NeuralNetwork::PrintDropout()
 	}
 }
 
-void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
+void NeuralNetworkP::PrintGradients(const char* printwhat, size_t layer)
 {
 	if (printwhat == "ALL" || printwhat == "GLAYER") {
 		for (size_t i = layer; i < (layer == 0 ? layers_count : layer + 1); ++i) {
@@ -183,7 +174,7 @@ void NeuralNetwork::PrintGradients(const char* printwhat, size_t layer)
 	}
 }
 
-void NeuralNetwork::PrintInfo()
+void NeuralNetworkP::PrintInfo()
 {
 	printf("\nThreads count: %zu\nLayers count %zu: ", threads_count, layers_count);
 	for (size_t i = 0; i < layers_count; ++i)
@@ -223,7 +214,7 @@ void NeuralNetwork::PrintInfo()
 	printf("\n");
 }
 
-void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size, bool use_dropout) {
+void NeuralNetworkP::NeuralMultiplication(double* fln, size_t fln_size, bool use_dropout) {
 	if ((int)fln_size != neurons_per_layer[0]) return;
 
 	size_t i = 0, j = 0, k = 0;
@@ -246,7 +237,7 @@ void NeuralNetwork::NeuralMultiplication(double* fln, size_t fln_size, bool use_
 	}
 }
 
-void NeuralNetwork::Activation(size_t layer, ActivationFunction act, bool use_dropout) {	
+void NeuralNetworkP::Activation(size_t layer, ActivationFunction act, bool use_dropout) {	
 	if (act == ReLU) {
 		for (size_t i = 0; i < neurons_per_layer[layer]; ++i) {
 			if (layers[layer][i] < 0) layers[layer][i] = 0;
@@ -264,7 +255,7 @@ void NeuralNetwork::Activation(size_t layer, ActivationFunction act, bool use_dr
 	}
 }
 
-void NeuralNetwork::LoadWeights(const char* path)
+void NeuralNetworkP::LoadWeights(const char* path)
 {
 	size_t n = 0, i = 0, j = 0, ind = 0;
 
@@ -303,7 +294,7 @@ void NeuralNetwork::LoadWeights(const char* path)
 	}
 }
 
-void NeuralNetwork::SaveWeights(const char* path)
+void NeuralNetworkP::SaveWeights(const char* path)
 {
 	ofstream RSave;
 	RSave.open(path);
@@ -325,7 +316,7 @@ void NeuralNetwork::SaveWeights(const char* path)
 	}
 }
 
-void NeuralNetwork::Optimizing(double alpha, double batch)
+void NeuralNetworkP::Optimizing(double alpha, double batch)
 {
 	size_t n = 0, i = 0, j = 0;
 
@@ -366,7 +357,7 @@ void NeuralNetwork::Optimizing(double alpha, double batch)
 	//ResetGradients();
 }
 
-void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_layer)
+void NeuralNetworkP::BackProp(double* y, size_t y_size, bool calculate_first_layer)
 {
 	if (y_size != neurons_per_layer[layers_count - 1]) return;
 
@@ -403,7 +394,7 @@ void NeuralNetwork::BackProp(double* y, size_t y_size, bool calculate_first_laye
 	layers[0] = temp;
 }
 
-void NeuralNetwork::ActDerivative(size_t layer, ActivationFunction act) {
+void NeuralNetworkP::ActDerivative(size_t layer, ActivationFunction act) {
 	size_t i = 0;
 
 	if (act == ReLU) {
@@ -433,7 +424,7 @@ void NeuralNetwork::ActDerivative(size_t layer, ActivationFunction act) {
 	}
 }
 
-void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print)
+void NeuralNetworkP::Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print)
 {
 	printf("\nTraining\n");
 	auto start_ = std::chrono::high_resolution_clock::now();
@@ -504,69 +495,73 @@ void NeuralNetwork::Train(double** inputs, double** ys, size_t train_size, size_
 	addit::plot(errors, err_index);
 }
 
-void NeuralNetwork::Train(DataSet &ds, size_t lvl, size_t batch, double alpha, bool print)
+void NeuralNetworkP::Train(DataSetP &ds, size_t lvl, size_t batch, double alpha, bool print)
 {
 	Train(ds._train_inputs, ds._train_outputs, ds.train_data_length, ds.input_length, ds.output_length, lvl, batch, alpha, print);
 }
 
-double* NeuralNetwork::Predict(double* input, size_t fln_size)
+double* NeuralNetworkP::Predict(double* input, size_t fln_size)
 {
 	NeuralMultiplication(input, fln_size, false);
 	layers[0] = temp;
 	return GetLastLayer();
 }
 
-void NeuralNetwork::Test(DataSet& ds)
-{	
-	printf("\nTesting...\n");
-
+void NeuralNetworkP::Test(DataSetP& ds)
+{
 	double* d;
 	double count = 0, summ = 0;
-	for (int i = 0; i < ds.test_data_length; ++i) {
-		d = Predict(ds._test_inputs[i], ds.input_length);
 
-		int ind = -1, match = -1;
-		double max = -1;
+	if (ds.test_data_index != 0) {
+		printf("\nTesting...\n");
+		
+		for (int i = 0; i < ds.test_data_length; ++i) {
+			d = Predict(ds._test_inputs[i], ds.input_length);
 
-		for (int j = 0; j < 10; ++j) {
-			if (d[j] > max) {
-				max = d[j];
-				ind = j;
+			int ind = -1, match = -1;
+			double max = -1;
+
+			for (int j = 0; j < 10; ++j) {
+				if (d[j] > max) {
+					max = d[j];
+					ind = j;
+				}
+				if (ds._test_outputs[i][j] == 1)
+					match = j;
 			}
-			if (ds._test_outputs[i][j] == 1)
-				match = j;
+
+			if (match == ind)
+				count++;
 		}
 
-		if (match == ind)
-			count++;
+		printf("Test: % .4f%%\n", 100 * count / ds.test_data_length);
 	}
+	if (ds.train_data_index != 0) {
+		count = summ = 0;
+		for (int i = 0; i < ds.train_data_length; ++i) {
+			d = Predict(ds._train_inputs[i], ds.input_length);
 
-	printf("Test: % .4f%%\n", 100 * count / ds.test_data_length);
+			int ind = -1, match = -1;
+			double max = -1;
 
-	count = summ = 0;
-	for (int i = 0; i < ds.train_data_length; ++i) {
-		d = Predict(ds._train_inputs[i], ds.input_length);
-
-		int ind = -1, match = -1;
-		double max = -1;
-
-		for (int j = 0; j < 10; ++j) {
-			if (d[j] > max) {
-				max = d[j];
-				ind = j;
+			for (int j = 0; j < 10; ++j) {
+				if (d[j] > max) {
+					max = d[j];
+					ind = j;
+				}
+				if (ds._train_outputs[i][j] == 1)
+					match = j;
 			}
-			if (ds._train_outputs[i][j] == 1)
-				match = j;
+
+			if (match == ind)
+				count++;
 		}
 
-		if (match == ind)
-			count++;
-	}
-
-	printf("Train: %.4f%%\n", 100 * count / ds.train_data_length);
+		printf("Train: %.4f%%\n", 100 * count / ds.train_data_length);
+	}	
 }
 
-void NeuralNetwork::Save(std::istream& cin)
+void NeuralNetworkP::Save(std::istream& cin)
 {
 	printf("Save weights?: (y/n)");
 	char save = '\0';
@@ -580,7 +575,7 @@ void NeuralNetwork::Save(std::istream& cin)
 	}
 }
 
-double* NeuralNetwork::GetLastLayer()
+double* NeuralNetworkP::GetLastLayer()
 {
 	return layers[layers_count - 1];
 }
@@ -693,7 +688,7 @@ void addit::Shuffle1(T* v, size_t len)
 		std::swap(v[i], v[i + rand() % (len - i)]);
 }
 
-void addit::LoadX(const char* sourcePath, size_t len, size_t slen, double** X) {
+size_t addit::LoadX(const char* sourcePath, size_t len, size_t slen, double** X) {
 	ifstream read;
 	read.open(sourcePath);
 	int i = 0, j = 0;
@@ -726,7 +721,7 @@ void addit::LoadX(const char* sourcePath, size_t len, size_t slen, double** X) {
 					}
 				}
 
-				if (_c == -1 || i == len - 1)
+				if (_c == -1 || i == len)
 					break;
 
 				num[0] = num[1] = num[2] = 0;
@@ -741,14 +736,17 @@ void addit::LoadX(const char* sourcePath, size_t len, size_t slen, double** X) {
 				num[_i] += _c - '0';
 			}
 		}
-
+		
 		read.close();
+		return i;
 	}
 	else
 		printf("File can't be load... filepath<<%s>>\n", sourcePath);
+
+	return 0;
 }
 
-void addit::LoadY(const char* sourcePath, size_t len, size_t slen, double** Y) {
+size_t addit::LoadY(const char* sourcePath, size_t len, size_t slen, double** Y) {
 	ifstream read;
 	read.open(sourcePath);
 	int i = 0;
@@ -758,11 +756,14 @@ void addit::LoadY(const char* sourcePath, size_t len, size_t slen, double** Y) {
 
 		while (i != len && (_c = read.get()) != -1)
 			Y[i++][_c - '0'] = 1.0f;
-
+		
 		read.close();
+		return i;
 	}
 	else
 		printf("File can't be load... filepath<<%s>>\n", sourcePath);
+
+	return 0;
 }
 
 double addit::to_double(const char* str) {
@@ -798,44 +799,40 @@ void addit::printString(const char* str, bool new_line) {
 	if (new_line) printf("\n");
 }
 
-void DataSet::DeleteTrainParams()
+void DataSetP::DeleteTrainParams()
 {
 	if (this->train_data_length == 0) return;
 
-	for (size_t i = 0; i < this->train_data_length; ++i) {
-		delete[] this->_train_inputs[i];
-		delete[] this->_train_outputs[i];
-	}
-	delete[] this->_train_inputs;
-	delete[] this->_train_outputs;
+	for (size_t i = 0; i < this->train_data_length; ++i)
+		delete[] this->_train_inputs[i], this->_train_outputs[i];
+
+	delete[] this->_train_inputs, this->_train_outputs;
 
 	this->train_data_length = 0;
 }
 
-void DataSet::DeleteTestParams()
+void DataSetP::DeleteTestParams()
 {
 	if (this->test_data_length == 0) return;
 
-	for (size_t i = 0; i < this->test_data_length; ++i) {
-		delete[] this->_test_inputs[i];
-		delete[] this->_test_outputs[i];
-	}
-	delete[] this->_test_inputs;
-	delete[] this->_test_outputs;
+	for (size_t i = 0; i < this->test_data_length; ++i)
+		delete[] this->_test_inputs[i], this->_test_outputs[i];
+
+	delete[] this->_test_inputs, this->_test_outputs;
 
 	this->test_data_length = 0;
 }
 
-DataSet::DataSet(){}
+DataSetP::DataSetP(){}
 
-DataSet::DataSet(size_t train_data_length, size_t input_length, size_t output_length)
+DataSetP::DataSetP(size_t train_data_length, size_t input_length, size_t output_length)
 {
 	if (this->train_data_length != 0) return;
 
 	SetTrainDataParams(train_data_length, input_length, output_length);
 }
 
-DataSet::DataSet(size_t train_data_length, size_t input_length, size_t output_length, size_t test_data_length)
+DataSetP::DataSetP(size_t train_data_length, size_t input_length, size_t output_length, size_t test_data_length)
 {
 	if (this->train_data_length != 0) return;
 
@@ -843,7 +840,7 @@ DataSet::DataSet(size_t train_data_length, size_t input_length, size_t output_le
 	SetTestDataParams(test_data_length, input_length, output_length);
 }
 
-void DataSet::SetTrainDataParams(size_t train_data_length, size_t input_length, size_t output_length)
+void DataSetP::SetTrainDataParams(size_t train_data_length, size_t input_length, size_t output_length)
 {
 	if (this->input_length != 0 && this->input_length != input_length) return;
 	if (this->output_length != 0 && this->output_length != output_length) return;
@@ -862,7 +859,7 @@ void DataSet::SetTrainDataParams(size_t train_data_length, size_t input_length, 
 	}
 }
 
-void DataSet::SetTestDataParams(size_t test_data_length, size_t input_length, size_t output_length)
+void DataSetP::SetTestDataParams(size_t test_data_length, size_t input_length, size_t output_length)
 {
 	if (this->input_length != 0 && this->input_length != input_length) return;
 	if (this->output_length != 0 && this->output_length != output_length) return;
@@ -881,13 +878,13 @@ void DataSet::SetTestDataParams(size_t test_data_length, size_t input_length, si
 	}
 }
 
-void DataSet::PrintInfo() const
+void DataSetP::PrintInfo() const
 {
 	printf("\nTrain Data Length: %zu\nTest Data Length: %zu\nInput Length: %zu\nOutput length: %zu\n", 
 		train_data_length, test_data_length, input_length, output_length);
 }
 
-void DataSet::PrintData()
+void DataSetP::PrintData()
 {
 	printf("Train Data\n");
 	for (size_t i = 0; i < this->train_data_length; ++i) {
@@ -912,33 +909,38 @@ void DataSet::PrintData()
 	}
 }
 
-void DataSet::LoadDataFromFile(const char* data_X_path, const char* data_Y_path, const char* tr_tst_info)
+void DataSetP::LoadDataFromFile(const char* data_X_path, const char* data_Y_path, const char* tr_tst_info)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
 	if (tr_tst_info == "Train") {
 		printf("Loading Train data\n");
-		addit::LoadX(data_X_path, this->train_data_length, this->input_length, this->_train_inputs);
-		addit::LoadY(data_Y_path, this->train_data_length, this->output_length, this->_train_outputs);
+		train_data_index = addit::LoadX(data_X_path, this->train_data_length, this->input_length, this->_train_inputs);
+		if (addit::LoadY(data_Y_path, this->train_data_length, this->output_length, this->_train_outputs) != train_data_index) {
+			printf("Can't load <<%s>>", tr_tst_info);
+			DeleteTrainParams();
+		}
 	}
 	else if (tr_tst_info == "Test") {
 		printf("Loading Test data\n");
-		addit::LoadX(data_X_path, this->test_data_length, this->input_length, this->_test_inputs);
-		addit::LoadY(data_Y_path, this->test_data_length, this->output_length, this->_test_outputs);
+		test_data_index = addit::LoadX(data_X_path, this->test_data_length, this->input_length, this->_test_inputs);
+		if (addit::LoadY(data_Y_path, this->test_data_length, this->output_length, this->_test_outputs) != test_data_index) {
+			printf("Can't load <<%s>>", tr_tst_info);
+			DeleteTestParams();
+		}
 	}
 	else {
-		printf("DataSet load failed...\n");
-		return;
+		printf("DataSet loading failed...\n");
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	char* dur = addit::GetTimeFromMilliseconds(duration);
-	printf("--- Download compl. : ");
+	printf("--- Download process compl. : ");
 	addit::printString(dur, true);
 	delete[] dur;
 }
 
-void DataSet::AddTrainCase(double* in_case, size_t in_length, double* out_case, size_t out_length)
+void DataSetP::AddTrainCase(double* in_case, size_t in_length, double* out_case, size_t out_length)
 {
 	if (this->train_data_index == this->train_data_length) return;
 	if (this->input_length != in_length || this->output_length != out_length) return;
@@ -952,7 +954,7 @@ void DataSet::AddTrainCase(double* in_case, size_t in_length, double* out_case, 
 	++this->train_data_index;
 }
 
-void DataSet::AddTestCase(double* in_case, size_t in_length, double* out_case, size_t out_length)
+void DataSetP::AddTestCase(double* in_case, size_t in_length, double* out_case, size_t out_length)
 {
 	if (this->test_data_index == this->test_data_length) return;
 	if (this->input_length != in_length || this->output_length != out_length) return;
@@ -966,7 +968,7 @@ void DataSet::AddTestCase(double* in_case, size_t in_length, double* out_case, s
 	++this->test_data_index;
 }
 
-DataSet::~DataSet()
+DataSetP::~DataSetP()
 {
 	DeleteTrainParams();
 	DeleteTestParams();

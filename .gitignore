@@ -1,6 +1,4 @@
 *.ipch
-/.vs
-/.vs
 *.json
 /NN/Digits
 .vs/NN/v17/.suo
@@ -9,3 +7,8 @@
 *.ilk
 *.log
 *.tlog
+*.vsidx
+*.opendb
+*.db-wal
+*.db-shm
+.vs/NN/v17/Browse.VC.db

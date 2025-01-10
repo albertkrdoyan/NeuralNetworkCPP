@@ -7,7 +7,8 @@ int CtoF();
 
 int main() {
 	// Test yourself
-	digits2();
+	
+	//digits2();
 	system("pause");
 	return 0;
 }
@@ -16,11 +17,13 @@ int digits2()
 {
 	const int tr_len = 60000, tst_len = 10000, img_len = 28 * 28, result_len = 10;
 
-	DataSet digit_rec_dataset(tr_len, img_len, result_len, tst_len);
+	DataSetP digit_rec_dataset;// (tr_len, img_len, result_len, tst_len);
+	digit_rec_dataset.SetTrainDataParams(tr_len, img_len, result_len);
 	digit_rec_dataset.LoadDataFromFile("Digits2\\trainX.txt", "Digits2\\trainY.txt", "Train");
-	digit_rec_dataset.LoadDataFromFile("Digits2\\testX.txt", "Digits2\\testY.txt", "Test");
+	//digit_rec_dataset.SetTestDataParams(tst_len, img_len, 10);
+	//digit_rec_dataset.LoadDataFromFile("Digits2\\testX.txt", "Digits2\\testY.txt", "Test");
 
-	NeuralNetwork digit_rec_model_perceptron;
+	NeuralNetworkP digit_rec_model_perceptron;
 	if (digit_rec_model_perceptron.Init(
 		{ img_len, 128, result_len }, { 0, 0.25, 0 },
 		ActivationFunction::ReLU,
@@ -35,11 +38,11 @@ int digits2()
 	digit_rec_dataset.PrintInfo();
 	digit_rec_model_perceptron.PrintInfo();
 
-	digit_rec_model_perceptron.Train(digit_rec_dataset, 10, 32, 0.0001, true);
+	//digit_rec_model_perceptron.Train(digit_rec_dataset, 10, 32, 0.001, true);
 	digit_rec_model_perceptron.Test(digit_rec_dataset);
-	digit_rec_model_perceptron.Save(std::cin);
+	//digit_rec_model_perceptron.Save(std::cin);
 
-	system("plot.py");
+	//system("plot.py");
 	return 0;
 }
 
@@ -47,11 +50,11 @@ int digits()
 {
 	const int tr_len = 60000, tst_len = 10000, img_len = 28 * 28, result_len = 10;
 
-	DataSet digit_rec_dataset(tr_len, img_len, result_len, tst_len);
+	DataSetP digit_rec_dataset(tr_len, img_len, result_len, tst_len);
 	digit_rec_dataset.LoadDataFromFile("Digits2\\trainX.txt", "Digits2\\trainY.txt", "Train");
 	digit_rec_dataset.LoadDataFromFile("Digits2\\testX.txt", "Digits2\\testY.txt", "Test");
 
-	NeuralNetwork digit_rec_model_perceptron;
+	NeuralNetworkP digit_rec_model_perceptron;
 	if (digit_rec_model_perceptron.Init(
 		{ img_len, 128, result_len }, {0, 0.5, 0},
 		ActivationFunction::ReLU,
@@ -75,7 +78,7 @@ int CtoF()
 	srand((unsigned int)time(NULL));
 
 	size_t tr_len = 20, tst_len = 10;
-	DataSet cels_to_fahr_dataset(tr_len, 1, 1, tst_len);
+	DataSetP cels_to_fahr_dataset(tr_len, 1, 1, tst_len);
 
 	double tci[1] = { };
 	double tco[1] = { };
@@ -96,7 +99,7 @@ int CtoF()
 
 	//cels_to_fahr_dataset.PrintData();
 
-	NeuralNetwork cels_to_fahr_perc_model;
+	NeuralNetworkP cels_to_fahr_perc_model;
 	if (cels_to_fahr_perc_model.Init({ 1, 1 }, {0, 0}, Linear, Linear, SquaredError, Adam) == -1) {
 		printf("no init.\n");
 		return 0;

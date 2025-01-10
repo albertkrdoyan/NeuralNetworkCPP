@@ -18,9 +18,9 @@ enum ActivationFunction { Linear, ReLU, Sigmoid, SoftMax };
 enum LossFunction { CrossEntropy, SquaredError };
 enum Optimizer { Adam, GradientDescent };
 
-class DataSet {
+class DataSetP {
 private:
-	size_t train_data_index = 0, test_data_index;
+	size_t train_data_index = 0, test_data_index = 0;
 	void DeleteTrainParams();
 	void DeleteTestParams();
 protected:
@@ -28,9 +28,9 @@ protected:
 	double **_train_inputs = nullptr, **_train_outputs = nullptr;
 	double **_test_inputs = nullptr, **_test_outputs = nullptr;
 public:
-	DataSet();
-	DataSet(size_t train_data_length, size_t input_length, size_t output_length);
-	DataSet(size_t train_data_length, size_t input_length, size_t output_length, size_t test_data_length);
+	DataSetP();
+	DataSetP(size_t train_data_length, size_t input_length, size_t output_length);
+	DataSetP(size_t train_data_length, size_t input_length, size_t output_length, size_t test_data_length);
 	void SetTrainDataParams(size_t train_data_length, size_t input_length, size_t output_length);
 	void SetTestDataParams(size_t test_data_length, size_t input_length, size_t output_length);
 	void PrintInfo() const;
@@ -38,9 +38,9 @@ public:
 	void LoadDataFromFile(const char* data_X_path, const char* data_Y_path, const char* tr_tst);
 	void AddTrainCase(double* in_case, size_t in_length, double* out_case, size_t out_length);
 	void AddTestCase(double* in_case, size_t in_length, double* out_case, size_t out_length);
-	~DataSet();
+	~DataSetP();
 
-	friend class NeuralNetwork;
+	friend class NeuralNetworkP;
 };
 
 class addit {
@@ -53,13 +53,13 @@ public:
 	static void plot(double* arr, size_t size);
 	template<class T> static void Shuffle2(T** v1, T** v2, size_t len);
 	template<class T> static void Shuffle1(T* v, size_t len);
-	static void LoadX(const char* sourcePath, size_t len, size_t slen, double** X);
-	static void LoadY(const char* sourcePath, size_t len, size_t slen, double** Y);
+	static size_t LoadX(const char* sourcePath, size_t len, size_t slen, double** X);
+	static size_t LoadY(const char* sourcePath, size_t len, size_t slen, double** Y);
 	static double to_double(const char* str);
 	static void printString(const char* str, bool new_line = false);
 };
 
-class NeuralNetwork
+class NeuralNetworkP
 {
 private:
 	double betta1, betta2, betta1toTpower, betta2toTpower, alpha_t;
@@ -90,8 +90,8 @@ private:
 	void PrintGradients(const char*, size_t);
 	double* GetLastLayer();
 public:
-	NeuralNetwork();
-	~NeuralNetwork();
+	NeuralNetworkP();
+	~NeuralNetworkP();
 	
 	void PrintDropout();
 
@@ -102,9 +102,9 @@ public:
 
 	int Init(vector<size_t> npl, vector<double> dropout, ActivationFunction act, ActivationFunction llact, LossFunction loss, Optimizer opt); //
 	void Train(double** inputs, double** ys, size_t train_size, size_t input_length, size_t output_length, size_t lvl, size_t batch, double alpha, bool print = false);
-	void Train(DataSet &ds, size_t lvl, size_t batch, double alpha, bool print = false);
+	void Train(DataSetP &ds, size_t lvl, size_t batch, double alpha, bool print = false);
 	double* Predict(double* input, size_t fln_size);
 
-	void Test(DataSet& ds);
+	void Test(DataSetP& ds);
 	void Save(std::istream& cin);
 };
